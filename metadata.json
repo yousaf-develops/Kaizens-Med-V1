@@ -1,0 +1,6 @@
+{
+  "name": "ASTRA-MED",
+  "description": "Autonomous deep-space astronaut health monitoring and NASA-STD-3001 clinical-review support workstation for long-duration missions.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

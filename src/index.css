@@ -1,0 +1,370 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-display: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-sans: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-num: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  html {
+    font-size: 17px;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #090b0f;
+    color: #f4f6f9;
+    overflow-x: hidden;
+    letter-spacing: -0.012em;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+
+  /* SF Pro tabular lining numerals across all telemetry metrics */
+  .font-mono, .tabular-nums {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Apple-Style Semi-Transparent Frosted Greyish Glass Components */
+.glass-3d {
+  background: linear-gradient(
+    165deg,
+    rgba(58, 63, 74, 0.38) 0%,
+    rgba(38, 42, 50, 0.44) 55%,
+    rgba(26, 29, 36, 0.50) 100%
+  );
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f4f6f9;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 20px 44px -14px rgba(0, 0, 0, 0.58);
+}
+
+.glass-3d-sub {
+  background: linear-gradient(
+    165deg,
+    rgba(72, 78, 90, 0.32) 0%,
+    rgba(46, 50, 60, 0.38) 60%,
+    rgba(32, 36, 44, 0.44) 100%
+  );
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f4f6f9;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 8px 20px -8px rgba(0, 0, 0, 0.40);
+}
+
+.glass-3d-recessed {
+  background: rgba(24, 27, 34, 0.44);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #f4f6f9;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Floating Apple-style Semi-Translucent Oval Top Banner */
+.glass-apple-pill {
+  background: linear-gradient(
+    180deg,
+    rgba(68, 73, 84, 0.46) 0%,
+    rgba(42, 46, 55, 0.50) 100%
+  );
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 18px 40px -12px rgba(0, 0, 0, 0.55);
+}
+
+.glass-3d-interactive {
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.glass-3d-interactive:hover {
+  border-color: rgba(255, 255, 255, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 22px 46px -12px rgba(0, 0, 0, 0.65);
+}
+
+.btn-mono-primary {
+  background: linear-gradient(180deg, #ffffff 0%, #e4e4e7 100%);
+  color: #09090b;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 8px 20px -6px rgba(0, 0, 0, 0.45);
+}
+
+.btn-mono-primary:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+}
+
+.btn-mono-glass {
+  background: rgba(74, 80, 92, 0.42);
+  color: #f4f6f9;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.btn-mono-glass:hover {
+  background: rgba(94, 102, 116, 0.52);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+@keyframes redAlertPulse {
+  0%, 100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 0.48;
+  }
+}
+
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes revealPanel {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes revealDrawer {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes revealBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes navAttentionBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-3px);
+  }
+  42% {
+    transform: translateY(0);
+  }
+  62% {
+    transform: translateY(-2px);
+  }
+  82% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes navDotPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes xrayRevealClip {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+@keyframes xrayScanBeam {
+  0% {
+    top: 4%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    top: 94%;
+    opacity: 0;
+  }
+}
+
+@keyframes calloutLineDraw {
+  from {
+    stroke-dashoffset: 240;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.red-organ-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: redAlertPulse 2s ease-in-out infinite;
+}
+
+.reveal-up {
+  animation: revealUp 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-panel {
+  animation: revealPanel 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-drawer {
+  animation: revealDrawer 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-backdrop {
+  animation: revealBackdrop 180ms ease-out both;
+}
+
+.nav-attention-bounce {
+  animation: navAttentionBounce 750ms cubic-bezier(0.22, 1, 0.36, 1) 2;
+}
+
+.nav-dot-pulse {
+  animation: navDotPulse 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.xray-reveal-wipe {
+  animation: xrayRevealClip 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.xray-scan-beam {
+  animation: xrayScanBeam 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.callout-line-draw {
+  stroke-dasharray: 240;
+  animation: calloutLineDraw 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger-1 {
+  animation-delay: 25ms;
+}
+
+.stagger-2 {
+  animation-delay: 55ms;
+}
+
+.stagger-3 {
+  animation-delay: 85ms;
+}
+
+.stagger-4 {
+  animation-delay: 115ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .red-organ-pulse,
+  .reveal-up,
+  .reveal-panel,
+  .reveal-drawer,
+  .reveal-backdrop,
+  .nav-attention-bounce,
+  .nav-dot-pulse,
+  .xray-reveal-wipe,
+  .xray-scan-beam,
+  .callout-line-draw {
+    animation: none;
+  }
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4 {
+    animation-delay: 0ms;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(16, 18, 24, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
