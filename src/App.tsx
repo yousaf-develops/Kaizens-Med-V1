@@ -9,6 +9,7 @@ import {
   Mic,
   RefreshCw,
   Scan,
+  ShieldCheck,
   TrendingUp,
   Watch,
   Wind,
@@ -17,9 +18,11 @@ import { AssessmentsView } from './components/AssessmentsView';
 import { AstronautOnboarding } from './components/AstronautOnboarding';
 import { BehavioralVaultView } from './components/BehavioralVaultView';
 import { CheckInDrawer } from './components/CheckInDrawer';
+import { DailyClearanceModal } from './components/DailyClearanceModal';
 import { HostileClosedView } from './components/HostileClosedView';
 import { HudOverview } from './components/HudOverview';
 import { MouseGlowBackground } from './components/MouseGlowBackground';
+import AnoAI from './components/ui/animated-shader-background';
 import { ResearchMatrixSection } from './components/ResearchMatrixSection';
 import { SyncQueueView } from './components/SyncQueueView';
 import { SystemsMatrixView } from './components/SystemsMatrixView';
@@ -106,6 +109,7 @@ export default function App() {
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkInPreset, setCheckInPreset] = useState<SystemId>('bone');
   const [wearableOpen, setWearableOpen] = useState(false);
+  const [clearanceOpen, setClearanceOpen] = useState(false);
   const [isOnline, setIsOnline] = useState<boolean>(
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
@@ -641,7 +645,9 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen lg:h-screen lg:overflow-hidden bg-black text-white flex flex-col">
-      {/* Global Smooth #024755 Cursor Glow */}
+      {/* AnoAI Three.js Shader Animated Background for all interfaces apart from registration */}
+      <AnoAI />
+      {/* Global Smooth #024755 Cursor Glow on top */}
       <MouseGlowBackground />
 
       {/* FLOATING APPLE-STYLE SEMI-TRANSLUCENT OVAL TOP BANNER */}
@@ -667,6 +673,13 @@ export default function App() {
 
             {/* Mobile quick actions */}
             <div className="flex lg:hidden items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setClearanceOpen(true)}
+                className="btn-mono-primary px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Clearance
+              </button>
               {!isAvatarLanding && (
                 <button
                   type="button"
@@ -679,7 +692,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setWearableOpen(true)}
-                className="btn-mono-primary px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap"
+                className="btn-mono-glass px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap"
               >
                 Watch
               </button>
@@ -739,6 +752,14 @@ export default function App() {
             >
               {isOnline ? '● Online' : '▲ Offline'}
             </span>
+            <button
+              type="button"
+              onClick={() => setClearanceOpen(true)}
+              className="btn-mono-primary inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold cursor-pointer whitespace-nowrap shadow-sm hover:scale-[1.03] active:scale-[0.98] transition-transform"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Daily Clearance</span>
+            </button>
             {!isAvatarLanding && (
               <button
                 type="button"
@@ -752,7 +773,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setWearableOpen(true)}
-              className="btn-mono-primary px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="btn-mono-glass px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <Watch className="h-3.5 w-3.5" />
               Watch
@@ -943,6 +964,21 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {latestEntry && (
+        <DailyClearanceModal
+          isOpen={clearanceOpen}
+          onClose={() => setClearanceOpen(false)}
+          profile={profile}
+          baseline={baseline}
+          env={envConfig}
+          latest={latestEntry}
+          evaluation={evaluation}
+          completedActionIds={completedActionIds}
+          onToggleActionDone={handleToggleActionDone}
+          onPatchTelemetry={handlePatchLatestTelemetry}
+        />
+      )}
 
       {latestEntry && (
         <CheckInDrawer

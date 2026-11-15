@@ -299,8 +299,8 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
 
       {/* X-RAY BODY STAGE + CLEAN INSPECTOR */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-        {/* LEFT: Full Uncropped X-Ray Model + Non-Truncating 6-Region Pills */}
-        <section className="reveal-up stagger-1 glass-3d lg:col-span-6 rounded-3xl p-4 flex flex-col justify-between gap-3 min-h-0">
+        {/* LEFT: Substantially Enlarged Full Uncropped X-Ray Model + Non-Truncating 6-Region Pills */}
+        <section className="reveal-up stagger-1 glass-3d lg:col-span-7 rounded-3xl p-4 sm:p-5 flex flex-col justify-between gap-3.5 min-h-[520px] lg:min-h-0">
           <AnatomicalHudSvg
             gender={gender}
             astronautName={baseline.callsign}
@@ -349,7 +349,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
         </section>
 
         {/* RIGHT: Clean, Spacious Parameter Inspector */}
-        <section className="reveal-up stagger-2 glass-3d lg:col-span-6 rounded-3xl p-5 flex flex-col gap-4 min-h-0 overflow-y-auto">
+        <section className="reveal-up stagger-2 glass-3d lg:col-span-5 rounded-3xl p-5 flex flex-col gap-4 min-h-0 overflow-y-auto">
           <div
             key={`head-${selectedSystem}`}
             className="reveal-panel shrink-0 flex items-center justify-between gap-3 border-b border-white/10 pb-3"

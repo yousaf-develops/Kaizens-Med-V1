@@ -82,18 +82,18 @@ interface HotspotSpec {
 }
 
 /**
- * Coordinates locked inside SVG viewBox="0 0 600 440" where the 1:1 avatar image
- * fills comfortably top-to-bottom with zero cropping.
+ * Coordinates locked inside SVG viewBox="0 0 640 480" where the 1:1 avatar image
+ * fills comfortably and prominently top-to-bottom with generous scale.
  */
 const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'vision-sans',
     label: 'Eyes & Brain',
-    cx: 300,
-    cy: 95,
-    elbowX: 416,
-    calloutX: 584,
-    calloutY: 92,
+    cx: 320,
+    cy: 102,
+    elbowX: 440,
+    calloutX: 624,
+    calloutY: 96,
     align: 'right',
     zoomOrigin: '50% 22%',
     zoomScale: 1.9,
@@ -101,11 +101,11 @@ const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'radiation',
     label: 'Radiation',
-    cx: 274,
-    cy: 226,
-    elbowX: 184,
+    cx: 290,
+    cy: 242,
+    elbowX: 195,
     calloutX: 16,
-    calloutY: 188,
+    calloutY: 200,
     align: 'left',
     zoomOrigin: '46% 51%',
     zoomScale: 1.85,
@@ -113,11 +113,11 @@ const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'cardio',
     label: 'Heart & Lungs',
-    cx: 314,
-    cy: 235,
-    elbowX: 416,
-    calloutX: 584,
-    calloutY: 226,
+    cx: 335,
+    cy: 252,
+    elbowX: 440,
+    calloutX: 624,
+    calloutY: 240,
     align: 'right',
     zoomOrigin: '52% 53%',
     zoomScale: 2.0,
@@ -125,11 +125,11 @@ const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'nutrition-hydration',
     label: 'Fluids & Nutrition',
-    cx: 296,
-    cy: 272,
-    elbowX: 184,
+    cx: 316,
+    cy: 294,
+    elbowX: 195,
     calloutX: 16,
-    calloutY: 272,
+    calloutY: 290,
     align: 'left',
     zoomOrigin: '49% 62%',
     zoomScale: 1.95,
@@ -137,11 +137,11 @@ const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'bone',
     label: 'Bone Density',
-    cx: 300,
-    cy: 301,
-    elbowX: 416,
-    calloutX: 584,
-    calloutY: 316,
+    cx: 320,
+    cy: 328,
+    elbowX: 440,
+    calloutX: 624,
+    calloutY: 340,
     align: 'right',
     zoomOrigin: '50% 68%',
     zoomScale: 1.95,
@@ -149,11 +149,11 @@ const HOTSPOTS: HotspotSpec[] = [
   {
     id: 'muscle',
     label: 'Muscles',
-    cx: 279,
-    cy: 334,
-    elbowX: 184,
+    cx: 296,
+    cy: 366,
+    elbowX: 195,
     calloutX: 16,
-    calloutY: 356,
+    calloutY: 388,
     align: 'left',
     zoomOrigin: '46% 76%',
     zoomScale: 1.9,
@@ -254,7 +254,7 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
           aria-label={`Open body scan for ${astronautName}`}
           className="relative z-10 flex-1 min-h-0 w-full flex flex-col items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-2xl group"
         >
-          <div className="relative h-full max-h-[385px] aspect-square flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02]">
+          <div className="relative h-full max-h-[460px] aspect-square flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.03]">
             <img
               src={assets.standard}
               alt={`${astronautName} avatar`}
@@ -315,10 +315,10 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
         )}
       </div>
 
-      {/* Unified Scalable SVG Stage: Full Head-to-Toe X-Ray + Callout Lines */}
-      <div className="relative flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
+      {/* Unified Scalable SVG Stage: Full Head-to-Toe Enlarged X-Ray + Callout Lines */}
+      <div className="relative flex-1 min-h-[440px] sm:min-h-[500px] w-full flex items-center justify-center overflow-hidden">
         <svg
-          viewBox="0 0 600 440"
+          viewBox="0 0 640 480"
           preserveAspectRatio="xMidYMid meet"
           className="w-full h-full max-h-full select-none"
           role="img"
@@ -326,8 +326,8 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
         >
           <defs>
             <radialGradient id="xrayStudioAura" cx="50%" cy="48%" r="48%">
-              <stop offset="0%" stopColor="#024755" stopOpacity="0.65" />
-              <stop offset="55%" stopColor="#024755" stopOpacity="0.18" />
+              <stop offset="0%" stopColor="#024755" stopOpacity="0.75" />
+              <stop offset="55%" stopColor="#024755" stopOpacity="0.22" />
               <stop offset="100%" stopColor="#024755" stopOpacity="0" />
             </radialGradient>
           </defs>
@@ -339,23 +339,23 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               transition: 'transform 340ms cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            <circle cx="300" cy="216" r="195" fill="url(#xrayStudioAura)" />
+            <circle cx="320" cy="235" r="230" fill="url(#xrayStudioAura)" />
 
             <ellipse
-              cx="300"
-              cy="402"
-              rx="108"
-              ry="11"
+              cx="320"
+              cy="448"
+              rx="135"
+              ry="13"
               fill="none"
               stroke="#024755"
               strokeOpacity="0.85"
               strokeWidth="1.2"
             />
             <ellipse
-              cx="300"
-              cy="402"
-              rx="74"
-              ry="7"
+              cx="320"
+              cy="448"
+              rx="92"
+              ry="8"
               fill="none"
               stroke="#38BDF8"
               strokeOpacity="0.35"
@@ -364,9 +364,9 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
 
             {speActive && (
               <circle
-                cx="300"
-                cy="214"
-                r="182"
+                cx="320"
+                cy="235"
+                r="220"
                 fill="none"
                 stroke="#F87171"
                 strokeWidth="2"
@@ -374,12 +374,13 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               />
             )}
 
+            {/* Substantially Enlarged X-Ray Body Image */}
             <image
               href={assets.xray}
-              x="125"
-              y="18"
-              width="350"
-              height="392"
+              x="70"
+              y="2"
+              width="500"
+              height="474"
               preserveAspectRatio="xMidYMid meet"
               onClick={onExitXray}
               className="xray-reveal-wipe cursor-pointer"
