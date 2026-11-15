@@ -97,10 +97,10 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
           <Lock className="h-5 w-5 text-white shrink-0 mt-1" />
           <div>
             <h1 className="text-2xl font-display font-bold text-white">
-              Private Vault
+              Private Sleep &amp; Mood Log
             </h1>
             <p className="text-sm text-zinc-400 mt-0.5">
-              Entries stay local on this device unless explicitly shared
+              Entries remain stored on your device unless you choose to share with your flight surgeon.
             </p>
           </div>
         </div>
@@ -137,29 +137,32 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
           <div className="text-3xl font-bold tabular-nums text-white">
             {latest?.sleepHours.toFixed(1) ?? '0.0'} <span className="text-sm font-normal text-zinc-400">/ {baseline.sleepTargetHours}h</span>
           </div>
-          <div className="text-sm text-zinc-400">
-            Quality {latest?.sleepQuality ?? 3}/5
+          <div className="text-sm flex items-center justify-between gap-2">
+            <span className="text-zinc-400">Quality: {latest?.sleepQuality ?? 3}/5</span>
+            <span className={(latest?.sleepHours ?? 7) < 6.5 ? 'text-amber-400 font-semibold' : 'text-emerald-400 font-semibold'}>
+              {(latest?.sleepHours ?? 7) < 6.5 ? '▲ Watch' : '● Normal'}
+            </span>
           </div>
         </div>
 
         <div className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-1.5">
-          <div className="text-sm font-medium text-zinc-300">7-Day Work</div>
+          <div className="text-sm font-medium text-zinc-300">7-Day Workload</div>
           <div className="text-3xl font-bold tabular-nums text-white">
             {weeklyWorkload.toFixed(1)} <span className="text-sm font-normal text-zinc-400">/ 48h</span>
           </div>
           <div className="text-sm font-semibold">
             {weeklyWorkload > 48 ? (
-              <span className="text-amber-400">▲ Heavy</span>
+              <span className="text-amber-400">▲ High Workload</span>
             ) : (
-              <span className="text-emerald-400">● Balanced</span>
+              <span className="text-emerald-400">● Normal</span>
             )}
           </div>
         </div>
 
         <div className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-1.5">
-          <div className="text-sm font-medium text-zinc-300">Mission Phase</div>
+          <div className="text-sm font-medium text-zinc-300">Mission Progress</div>
           <div className="text-3xl font-bold tabular-nums text-white">
-            Q{currentQuarter} <span className="text-sm font-normal text-zinc-400">of 4</span>
+            Quarter {currentQuarter} <span className="text-sm font-normal text-zinc-400">of 4</span>
           </div>
           <div className="text-sm text-zinc-400">
             Day {env.currentDay} of {env.totalMissionDays}
@@ -167,14 +170,14 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
         </div>
       </div>
 
-      {/* Hazard 1 <-> Hazard 2 Hippocampus Cross-Reference */}
+      {/* Sleep & Radiation Link */}
       <div className="glass-3d-recessed rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-zinc-300">
         <span>
-          <strong className="text-white">Hazard 2 · Isolation &amp; Sleep ↔ Hazard 1 · Radiation:</strong>{' '}
-          Combined sleep/stress logs cross-link with space radiation records (hippocampus sensitivity context; non-diagnostic).
+          <strong className="text-white">Radiation &amp; Sleep Link:</strong>{' '}
+          Links sleep and stress entries with radiation logs for flight surgeon review.
         </span>
         <span className="font-semibold text-zinc-200 tabular-nums">
-          Radiation Status: {evaluation.hazardSeverities['space-radiation'] === 'nominal' ? '● Normal' : '▲ Review Logged'}
+          Radiation: {evaluation.hazardSeverities['space-radiation'] === 'nominal' ? '● Normal' : '▲ Watch'}
         </span>
       </div>
 
@@ -185,16 +188,16 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-display font-semibold text-white">
-              Daily Check-In (Sol {env.currentDay})
+              Daily Entry (Day {env.currentDay})
             </h2>
             <span className="text-[11px] font-mono text-zinc-400">
-              <EyeOff className="inline h-3 w-3 mr-1" /> Local
+              <EyeOff className="inline h-3 w-3 mr-1" /> Private
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <label className="space-y-1">
-              <span className="text-zinc-300 font-medium">Sleep (hrs)</span>
+              <span className="text-zinc-300 font-medium">Sleep (hours)</span>
               <input
                 type="number"
                 step="0.1"
@@ -210,7 +213,7 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
             </label>
 
             <label className="space-y-1">
-              <span className="text-zinc-300 font-medium">Workload (hrs)</span>
+              <span className="text-zinc-300 font-medium">Workload (hours)</span>
               <input
                 type="number"
                 step="0.5"
@@ -228,10 +231,10 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
 
           {[
             { label: 'Sleep Quality', val: sleepQuality, set: setSleepQuality },
-            { label: 'Autonomy', val: scheduleControl, set: setScheduleControl },
+            { label: 'Schedule Control', val: scheduleControl, set: setScheduleControl },
             { label: 'Mood', val: moodScore, set: setMoodScore },
-            { label: 'Stress', val: stressScore, set: setStressScore },
-            { label: 'Cohesion', val: crewCohesionScore, set: setCrewCohesionScore },
+            { label: 'Stress Level', val: stressScore, set: setStressScore },
+            { label: 'Crew Cohesion', val: crewCohesionScore, set: setCrewCohesionScore },
           ].map((scale) => (
             <div key={scale.label} className="space-y-1.5">
               <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -259,7 +262,7 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
 
           <div className="space-y-2 pt-1 text-xs">
             <label className="glass-3d-recessed flex items-center justify-between rounded-xl px-3 py-2.5 cursor-pointer">
-              <span className="text-zinc-200">Meaningful workday</span>
+              <span className="text-zinc-200">Work felt meaningful today</span>
               <input
                 type="checkbox"
                 checked={meaningfulWork}
@@ -268,7 +271,7 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
               />
             </label>
             <label className="glass-3d-recessed flex items-center justify-between rounded-xl px-3 py-2.5 cursor-pointer">
-              <span className="text-zinc-200">Comm delay friction</span>
+              <span className="text-zinc-200">Earth comms delay caused stress</span>
               <input
                 type="checkbox"
                 checked={commDelayTension}
@@ -279,12 +282,12 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
           </div>
 
           <label className="block space-y-1.5 text-sm">
-            <span className="text-zinc-200 font-medium">Journal Note</span>
+            <span className="text-zinc-200 font-medium">Private Reflection</span>
             <textarea
               rows={2}
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
-              placeholder="Optional private note..."
+              placeholder="Optional note..."
               className="w-full rounded-xl glass-3d-recessed px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/35"
             />
           </label>
@@ -296,14 +299,14 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
               onChange={(e) => setShareOptIn(e.target.checked)}
               className="rounded border-white/25 accent-white"
             />
-            <span className="text-zinc-300">Share summary with Flight Surgeon</span>
+            <span className="text-zinc-300">Share summary with flight surgeon</span>
           </label>
 
           <button
             type="submit"
             className="btn-mono-primary w-full py-3 rounded-full font-semibold text-base transition-all cursor-pointer"
           >
-            {savedNotice ? 'Saved Locally' : 'Save Check-In'}
+            {savedNotice ? 'Saved On Device' : 'Save Private Entry'}
           </button>
         </form>
 
@@ -311,36 +314,36 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="glass-3d rounded-3xl p-5">
               <h3 className="text-sm font-semibold text-white mb-2">
-                Sleep vs. Work
+                Sleep vs. Workload
               </h3>
               <LongitudinalAreaChart
                 data={vault.slice(-7).map((v) => ({
-                  label: `Sol ${v.sol}`,
+                  label: `Day ${v.sol}`,
                   primary: v.sleepHours,
                   secondary: v.workloadHours,
                 }))}
                 primaryLabel="Sleep"
-                secondaryLabel="Work"
+                secondaryLabel="Workload"
                 unit="h"
                 thresholdValue={8}
-                thresholdLabel="8h Goal"
+                thresholdLabel="8h Target"
               />
             </div>
 
             <div className="glass-3d rounded-3xl p-5 space-y-3 flex flex-col justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-white">
-                  Daily Habits
+                  Healthy Habits
                 </h3>
                 <ul className="mt-2 space-y-1.5 text-sm text-zinc-300 list-disc pl-4">
-                  <li>Protect your 8h sleep window.</li>
-                  <li>Schedule quiet decompression time.</li>
-                  <li>Connect regularly with crew &amp; family.</li>
+                  <li>Aim for 8 hours of sleep each night.</li>
+                  <li>Protect dedicated quiet recovery time daily.</li>
+                  <li>Check in regularly with crewmates and family.</li>
                 </ul>
               </div>
               <div className="glass-3d-sub rounded-2xl p-3 text-xs sm:text-sm text-zinc-300 flex items-start gap-2">
                 <MessageSquareHeart className="h-4 w-4 shrink-0 mt-0.5 text-white" />
-                <span>Private Flight Surgeon channel available anytime.</span>
+                <span>Confidential flight surgeon support is available anytime.</span>
               </div>
             </div>
           </div>
@@ -348,7 +351,7 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
           <section className="glass-3d rounded-3xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-display font-semibold text-white">
-                Journal Log
+                Past Entries
               </h3>
               <span className="text-xs font-mono text-zinc-400">
                 {vault.filter((v) => v.sharedWithFlightSurgeon).length}/{vault.length} shared
@@ -360,11 +363,11 @@ export const BehavioralVaultView: React.FC<BehavioralVaultViewProps> = ({
                 <div key={entry.id} className="py-3 space-y-1.5 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="font-mono text-zinc-300 text-xs sm:text-sm">
-                      <span className="text-white font-semibold">Sol {entry.sol}</span>
+                      <span className="text-white font-semibold">Day {entry.sol}</span>
                       <span className="mx-1.5 text-zinc-500">·</span>
                       <span>Sleep {entry.sleepHours}h</span>
                       <span className="mx-1.5 text-zinc-500">·</span>
-                      <span>Work {entry.workloadHours}h</span>
+                      <span>Workload {entry.workloadHours}h</span>
                       <span className="mx-1.5 text-zinc-500">·</span>
                       <span>Mood {entry.moodScore}/5</span>
                     </div>

@@ -52,7 +52,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
   const falseStartsRef = useRef<number>(0);
 
   const [mediaCategory, setMediaCategory] = useState<MediaAssessmentItem['category']>('muscle-ultrasound');
-  const [anatomicalSite, setAnatomicalSite] = useState('Right Rectus Femoris');
+  const [anatomicalSite, setAnatomicalSite] = useState('Right Upper Leg');
   const [mediaNotes, setMediaNotes] = useState('');
   const [flaggedClinician, setFlaggedClinician] = useState(false);
   const [compareIds, setCompareIds] = useState<[string, string]>([
@@ -136,7 +136,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
     setSamples([]);
     setFalseStarts(0);
     setLatestSavedPvt(null);
-    setLastFeedback('Wait for signal...');
+    setLastFeedback('Wait for the blue signal...');
     setRemainingSec(totalSec);
 
     sessionTimerRef.current = window.setInterval(() => {
@@ -157,7 +157,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
       if (foreperiodTimerRef.current) window.clearTimeout(foreperiodTimerRef.current);
       falseStartsRef.current += 1;
       setFalseStarts(falseStartsRef.current);
-      setLastFeedback('False start! Wait for signal.');
+      setLastFeedback('Too early. Wait for the blue signal.');
       setPhase('feedback');
       window.setTimeout(() => scheduleNextStimulus(), 900);
       return;
@@ -167,7 +167,11 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
       const rt = Math.round(performance.now() - stimulusStartRef.current);
       samplesRef.current = [...samplesRef.current, rt];
       setSamples(samplesRef.current);
-      setLastFeedback(rt > 355 ? `${rt} ms (Lapse)` : `${rt} ms`);
+      setLastFeedback(
+        rt > 355
+          ? `${(rt / 1000).toFixed(2)} sec (Slow)`
+          : `${(rt / 1000).toFixed(2)} sec`
+      );
       setPhase('feedback');
       window.setTimeout(() => scheduleNextStimulus(), 750);
     }
@@ -200,14 +204,14 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
         anatomicalSite: anatomicalSite.trim() || 'Unspecified Site',
         capturedAtISO: new Date().toISOString(),
         sol: env.currentDay,
-        notes: mediaNotes.trim() || 'Crew scan log.',
+        notes: mediaNotes.trim() || 'Crew scan entry.',
         dataUrl,
         flaggedForClinician: flaggedClinician,
       };
       onSaveMediaItem(item);
       setCompareIds((prev) => [prev[0] || item.id, item.id]);
       setMediaNotes('');
-      setUploadSuccessMsg('Scan saved offline.');
+      setUploadSuccessMsg('Image saved offline.');
       window.setTimeout(() => setUploadSuccessMsg(''), 3000);
     };
     reader.readAsDataURL(file);
@@ -219,15 +223,15 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Focus & Reaction Speed Test */}
+      {/* 1. Reaction & Alertness Check */}
       <section className="reveal-up glass-3d rounded-3xl p-5 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-display font-bold text-white">
-              Focus &amp; Reaction Test
+              Reaction &amp; Alertness Check
             </h1>
             <p className="text-sm text-zinc-400 mt-0.5">
-              Measures alertness in milliseconds against personal baseline — fatigue slows reaction speed before you feel sleepy
+              Tap promptly when the panel highlights to check fatigue and reaction speed.
             </p>
           </div>
 
@@ -242,7 +246,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                   : 'text-zinc-300 hover:text-white'
               }`}
             >
-              3-Min Test
+              3-Min Standard
             </button>
             <button
               type="button"
@@ -254,7 +258,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                   : 'text-zinc-300 hover:text-white'
               }`}
             >
-              45s Quick
+              45s Quick Check
             </button>
           </div>
         </div>
@@ -266,7 +270,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                 <Clock className="inline h-3.5 w-3.5 mr-1 text-zinc-300" />
                 {Math.floor(remainingSec / 60)}:{String(remainingSec % 60).padStart(2, '0')}
               </span>
-              <span>TRIALS: {samples.length} · FALSE: {falseStarts}</span>
+              <span>ATTEMPTS: {samples.length} · EARLY TAPS: {falseStarts}</span>
             </div>
 
             {phase === 'idle' || phase === 'complete' ? (
@@ -274,13 +278,14 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                 {phase === 'complete' && latestSavedPvt ? (
                   <div className="reveal-panel space-y-3">
                     <div className="text-xs font-mono font-semibold text-emerald-400">
-                      ● SESSION SAVED
+                      ● CHECK SAVED ({latestSavedPvt.meanRtMs <= baseline.pvtBaselineMs + 45 ? 'NORMAL' : 'WATCH'})
                     </div>
                     <div className="text-4xl font-mono font-bold tabular-nums text-white">
-                      {latestSavedPvt.meanRtMs} <span className="text-base font-medium text-zinc-400">ms mean</span>
+                      {(latestSavedPvt.meanRtMs / 1000).toFixed(2)}{' '}
+                      <span className="text-base font-medium text-zinc-400">sec average</span>
                     </div>
                     <div className="text-xs sm:text-sm font-mono text-zinc-400">
-                      Base {baseline.pvtBaselineMs} ms · Lapses: {latestSavedPvt.lapsesCount}
+                      Baseline {(baseline.pvtBaselineMs / 1000).toFixed(2)} sec · Slow responses: {latestSavedPvt.lapsesCount}
                     </div>
                     {latestSavedPvt.reactionSamplesMs.length > 0 && (
                       <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1 max-w-md">
@@ -295,7 +300,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                                   : 'bg-emerald-500/15 text-emerald-300 border-emerald-400/35'
                             }`}
                           >
-                            {ms}ms
+                            {(ms / 1000).toFixed(2)}s
                           </span>
                         ))}
                       </div>
@@ -303,11 +308,11 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                   </div>
                 ) : (
                   <p className="text-sm text-zinc-300 max-w-md leading-relaxed">
-                    Tap the target pad or press{' '}
+                    Tap the panel or press{' '}
                     <kbd className="glass-3d-sub px-1.5 py-0.5 rounded font-mono text-xs text-white">
                       Space
                     </kbd>{' '}
-                    when the counter lights up.
+                    as soon as it lights up blue.
                   </p>
                 )}
 
@@ -316,7 +321,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                   className="btn-mono-primary px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
                 >
                   {phase === 'complete' ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  {phase === 'complete' ? 'Run Again' : 'Start Test'}
+                  {phase === 'complete' ? 'Run Again' : 'Start Check'}
                 </button>
               </div>
             ) : (
@@ -345,7 +350,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                         {phase === 'feedback' ? lastFeedback : 'WAIT...'}
                       </span>
                       <span className="text-xs font-mono text-zinc-400 mt-1">
-                        Wait for illumination
+                        Wait for the blue signal
                       </span>
                     </>
                   )}
@@ -353,7 +358,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
 
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-mono text-zinc-400">
-                    Awake: {hoursAwakeNow}h
+                    Hours Awake: {hoursAwakeNow} hrs
                   </span>
                   <div className="flex items-center gap-2">
                     <button
@@ -378,15 +383,15 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
             )}
           </div>
 
-          {/* PVT-B History */}
+          {/* Reaction Check History */}
           <div className="glass-3d-recessed lg:col-span-5 rounded-2xl p-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xs font-mono uppercase tracking-wider text-zinc-300">
-                  Recent Sessions
+                  Past Checks
                 </h2>
                 <span className="text-xs font-mono text-zinc-400">
-                  Base: {baseline.pvtBaselineMs} ms
+                  Baseline: {(baseline.pvtBaselineMs / 1000).toFixed(2)} sec
                 </span>
               </div>
               <div className="divide-y divide-white/10">
@@ -399,16 +404,16 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                       <div key={s.id} className="py-2.5 flex items-center justify-between text-xs sm:text-sm">
                         <div>
                           <div className="font-mono font-semibold text-white">
-                            Sol {s.sol} · {s.mode === 'standard-3m' ? '3-Min' : '45s'}
+                            Day {s.sol} · {s.mode === 'standard-3m' ? '3-Min' : '45s'}
                           </div>
                           <div className="text-xs font-mono text-zinc-400">
-                            {s.trialsCount} trials · {s.lapsesCount} lapses
+                            {s.trialsCount} taps · {s.lapsesCount} slow
                           </div>
                         </div>
                         <div className="text-right font-mono tabular-nums">
-                          <div className="text-base font-bold text-white">{s.meanRtMs} ms</div>
+                          <div className="text-base font-bold text-white">{(s.meanRtMs / 1000).toFixed(2)}s</div>
                           <div className={delta > 60 ? 'text-rose-400 font-semibold' : delta > 35 ? 'text-amber-400 font-semibold' : 'text-emerald-400 font-semibold'}>
-                            {delta >= 0 ? `+${delta}` : delta} ms
+                            {delta >= 0 ? `+${(delta / 1000).toFixed(2)}s` : `${(delta / 1000).toFixed(2)}s`}
                           </div>
                         </div>
                       </div>
@@ -420,15 +425,15 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
         </div>
       </section>
 
-      {/* 2. Scan & Photo Comparison */}
+      {/* 2. Side-by-Side Image Compare */}
       <section className="reveal-up stagger-2 glass-3d rounded-3xl p-5 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-xl font-display font-bold text-white">
-              Scan Comparison
+              Side-by-Side Image Compare
             </h2>
             <p className="text-sm text-zinc-400 mt-0.5">
-              Non-experts: hold probe/camera steady at the same body angle and select two dates below to check side-by-side changes
+              Keep camera distance consistent and select two mission days to compare.
             </p>
           </div>
           {uploadSuccessMsg && (
@@ -440,30 +445,30 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div className="glass-3d-recessed lg:col-span-4 rounded-2xl p-4 space-y-3">
-            <div className="text-xs font-mono uppercase text-zinc-300 font-semibold">Upload Scan</div>
+            <div className="text-xs font-mono uppercase text-zinc-300 font-semibold">Add Image</div>
 
             <label className="block space-y-1 text-xs">
-              <span className="text-zinc-400 font-medium">Type</span>
+              <span className="text-zinc-400 font-medium">Scan Type</span>
               <select
                 value={mediaCategory}
                 onChange={(e) => setMediaCategory(e.target.value as MediaAssessmentItem['category'])}
                 className="w-full rounded-xl glass-3d-recessed px-3 py-2 text-white focus:outline-none focus:border-white/35"
               >
-                <option value="muscle-ultrasound" className="bg-zinc-900 text-white">Muscle Ultrasound</option>
-                <option value="skin-radiation" className="bg-zinc-900 text-white">Skin Radiation</option>
-                <option value="oct-retina" className="bg-zinc-900 text-white">OCT Retina</option>
+                <option value="muscle-ultrasound" className="bg-zinc-900 text-white">Leg Muscle Scan</option>
+                <option value="skin-radiation" className="bg-zinc-900 text-white">Skin Photo</option>
+                <option value="oct-retina" className="bg-zinc-900 text-white">Retinal / Eye Image</option>
                 <option value="other" className="bg-zinc-900 text-white">Other Scan</option>
               </select>
             </label>
 
             <label className="block space-y-1 text-xs">
-              <span className="text-zinc-400 font-medium">Site</span>
+              <span className="text-zinc-400 font-medium">Anatomical Site</span>
               <input
                 type="text"
                 value={anatomicalSite}
                 onChange={(e) => setAnatomicalSite(e.target.value)}
                 className="w-full rounded-xl glass-3d-recessed px-3 py-2 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/35"
-                placeholder="Anatomical site"
+                placeholder="e.g. Right Upper Leg"
               />
             </label>
 
@@ -474,7 +479,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                 value={mediaNotes}
                 onChange={(e) => setMediaNotes(e.target.value)}
                 className="w-full rounded-xl glass-3d-recessed px-3 py-2 text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/35"
-                placeholder="Optional scan notes..."
+                placeholder="Optional notes..."
               />
             </label>
 
@@ -485,12 +490,12 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                 onChange={(e) => setFlaggedClinician(e.target.checked)}
                 className="rounded border-white/25 accent-white"
               />
-              Flag for Flight Surgeon review
+              Flag for flight surgeon review
             </label>
 
             <label className="btn-mono-primary flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-all">
               <Upload className="h-4 w-4" />
-              <span>Upload / Capture</span>
+              <span>Upload or Capture Image</span>
               <input
                 type="file"
                 accept="image/*"
@@ -503,8 +508,8 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
 
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { label: 'Prior Scan', item: leftMedia, idx: 0 },
-              { label: 'Current Scan', item: rightMedia, idx: 1 },
+              { label: 'Earlier Image', item: leftMedia, idx: 0 },
+              { label: 'Latest Image', item: rightMedia, idx: 1 },
             ].map((slot) => (
               <div
                 key={slot.idx}
@@ -524,7 +529,7 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                   >
                     {mediaItems.map((m) => (
                       <option key={m.id} value={m.id} className="bg-zinc-900 text-white">
-                        Sol {m.sol} · {m.anatomicalSite}
+                        Day {m.sol} · {m.anatomicalSite}
                       </option>
                     ))}
                   </select>
@@ -542,16 +547,16 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
                     </div>
                     <div className="text-xs space-y-1">
                       <div className="flex items-center justify-between font-mono text-[11px] text-zinc-400">
-                        <span>Sol {slot.item.sol} · {slot.item.category}</span>
+                        <span>Day {slot.item.sol}</span>
                         {slot.item.flaggedForClinician && (
-                          <span className="text-amber-400 font-semibold">▲ Flagged</span>
+                          <span className="text-amber-400 font-semibold">▲ Surgeon Review</span>
                         )}
                       </div>
                       <div className="text-white font-medium">{slot.item.anatomicalSite}</div>
                     </div>
                   </>
                 ) : (
-                  <div className="py-12 text-center text-xs text-zinc-400">No scan selected</div>
+                  <div className="py-12 text-center text-xs text-zinc-400">No image selected</div>
                 )}
               </div>
             ))}
@@ -559,31 +564,25 @@ export const AssessmentsView: React.FC<AssessmentsViewProps> = ({
         </div>
       </section>
 
-      {/* 3. Quick Exam Protocols */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-1.5">
-          <div className="flex items-center gap-2 text-white text-xs font-mono uppercase font-semibold">
-            <HeartPulse className="h-4 w-4 text-zinc-300" /> 4.2 Orthostatic BP
-          </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            Record seated, supine, or standing posture; stop upright check if dizzy or presyncopal.
-          </p>
+      {/* 3. Concise Check Protocol Reference */}
+      <section className="glass-3d rounded-3xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-zinc-300">
+        <div className="flex items-start gap-2.5">
+          <HeartPulse className="h-4 w-4 text-zinc-300 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-white">Standing Check:</strong> Measure blood pressure seated and standing; stop immediately if dizzy.
+          </span>
         </div>
-        <div className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-1.5">
-          <div className="flex items-center gap-2 text-white text-xs font-mono uppercase font-semibold">
-            <Eye className="h-4 w-4 text-zinc-300" /> 4.4 SANS &amp; OCT Check
-          </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            Pair retinal/OCT imaging with IOP and acuity; investigational cuffs do not substitute for exams.
-          </p>
+        <div className="flex items-start gap-2.5">
+          <Eye className="h-4 w-4 text-zinc-300 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-white">Eye Check:</strong> Capture scheduled retinal images and eye pressure checks on time.
+          </span>
         </div>
-        <div className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-1.5">
-          <div className="flex items-center gap-2 text-white text-xs font-mono uppercase font-semibold">
-            <Camera className="h-4 w-4 text-zinc-300" /> 1. Radiation Skin Log
-          </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            Capture timestamped skin photos alongside verified personal dosimetry after SPE events.
-          </p>
+        <div className="flex items-start gap-2.5">
+          <Camera className="h-4 w-4 text-zinc-300 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-white">Skin Check:</strong> Save dated skin photos after any solar storm or skin irritation.
+          </span>
         </div>
       </section>
     </div>

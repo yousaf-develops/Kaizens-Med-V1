@@ -60,17 +60,17 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
             </span>
             <span aria-hidden="true">·</span>
             <span className="tabular-nums text-zinc-300">
-              {completedCount}/{prompts.length} Routine Quests Done
+              {completedCount}/{prompts.length} Daily Tasks Completed
             </span>
             {dueCount > 0 && (
               <>
                 <span aria-hidden="true">·</span>
-                <span className="text-amber-400 font-semibold">{dueCount} Due Now</span>
+                <span className="text-amber-400 font-semibold">{dueCount} Action Needed</span>
               </>
             )}
           </div>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white">
-            Mission Health Routine &amp; Progress
+            Daily Routine &amp; Readiness
           </h2>
         </div>
 
@@ -84,7 +84,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
           <div className="glass-3d-recessed rounded-2xl px-4 py-2 min-w-[210px] space-y-1">
             <div className="flex items-center justify-between text-xs font-semibold tabular-nums">
               <span className="text-white">{rank.currentXp} XP</span>
-              <span className="text-zinc-400">Next: {rank.nextLevelXp} XP</span>
+              <span className="text-zinc-400">Next Level: {rank.nextLevelXp}</span>
             </div>
             <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
               <div
@@ -122,7 +122,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
                       isDone ? 'text-emerald-400' : 'text-zinc-300'
                     }`}
                   >
-                    {isDone ? '✓ Earned' : `+${prompt.xpReward} XP`}
+                    {isDone ? '● Completed' : `+${prompt.xpReward} XP`}
                   </span>
                 </div>
 
@@ -135,7 +135,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
                 </p>
 
                 <p className="text-xs text-zinc-400 leading-snug">
-                  <strong className="text-zinc-300">Why:</strong> {prompt.whyItMatters}
+                  <strong className="text-zinc-300">Why it matters:</strong> {prompt.whyItMatters}
                 </p>
               </div>
 
@@ -152,7 +152,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
                   ) : (
                     <Circle className="h-4 w-4 text-zinc-400" />
                   )}
-                  <span>{isDone ? 'Completed' : 'Mark Done'}</span>
+                  <span>{isDone ? 'Completed' : 'Mark Complete'}</span>
                 </button>
 
                 {(prompt.targetSystem || prompt.targetTab) && (
@@ -165,7 +165,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
                     }
                     className="btn-mono-glass px-3 py-1 rounded-full text-xs font-semibold cursor-pointer"
                   >
-                    {prompt.targetSystem ? 'Measure →' : 'Open →'}
+                    {prompt.targetSystem ? 'Update →' : 'Open →'}
                   </button>
                 )}
               </div>
@@ -183,7 +183,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
         >
           <span className="inline-flex items-center gap-2">
             <Target className="h-4 w-4 text-emerald-400" />
-            Mission Health Badges ({unlockedCount} / {badges.length} Unlocked)
+            Mission Milestones ({unlockedCount} / {badges.length} Earned)
           </span>
           {showBadges ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
@@ -202,7 +202,7 @@ export const RoutineGamificationPanel: React.FC<RoutineGamificationPanelProps> =
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-white text-sm">{badge.title}</span>
                   <span className={badge.unlocked ? 'text-emerald-400 font-semibold' : 'text-zinc-400'}>
-                    {badge.unlocked ? '● Unlocked' : 'Locked'}
+                    {badge.unlocked ? '● Earned' : 'In Progress'}
                   </span>
                 </div>
                 <p className="text-zinc-300 leading-snug">{badge.description}</p>

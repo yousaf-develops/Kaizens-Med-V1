@@ -111,24 +111,24 @@ export function evaluateTelemetry(
   }
 
   // =========================================================================
-  // HAZARD 4: GRAVITY FIELDS (4.1 Bone, 4.2 Cardio, 4.3 Muscle, 4.4 SANS, 4.5 Nutrition)
+  // RISK 4: LOW GRAVITY (Bone, Cardio, Muscle, Eyes & Brain, Fluids & Nutrition)
   // =========================================================================
 
-  // 4.1 Bone Health & Post-Landing Readaptation
+  // 1. Bone Density
   if (latest.hipSpineBmdPct < 95 || latest.femoralNeckBmdPct < 90) {
     pushAlert({
       id: 'bone-bmd-threshold',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Bone Health',
-      title: 'Bone Density Below Safe Baseline',
+      systemLabel: 'Bone Density',
+      title: 'Bone Density Below Safe Level',
       severity: 'urgent',
       classification: 'NASA-backed threshold',
-      standardRef: 'NASA-STD-3001 V1 4027',
-      whatItMayShow: 'Bone loss exceeds mission standard (95% hip/spine, 90% femoral neck) and raises fracture risk.',
-      recommendedAction: 'Do prescribed heavy ARED loading and flag scan for ASCR/medical review.',
-      metricSummary: `Hip/Spine ${latest.hipSpineBmdPct.toFixed(1)}% (min 95%) · Thigh ${latest.femoralNeckBmdPct.toFixed(1)}% (min 90%)`,
+      standardRef: 'Bone Density Rule',
+      whatItMayShow: 'Hip, spine, or thigh bone strength dropped below safe mission limits.',
+      recommendedAction: 'Complete today’s full resistance training and notify your flight surgeon.',
+      metricSummary: `Hip & Spine ${latest.hipSpineBmdPct.toFixed(1)}% (min 95%) · Thigh ${latest.femoralNeckBmdPct.toFixed(1)}% (min 90%)`,
     });
   }
 
@@ -137,15 +137,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'bone-ared-shortfall',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Bone Health',
+      systemLabel: 'Bone Density',
       title: 'Missed Resistance Workouts This Week',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Lower mechanical loading may be insufficient to help preserve bone and muscle mass.',
-      recommendedAction: 'Resume prescribed ARED session and log reason for missed workouts.',
-      metricSummary: `${missedAredIn7} missed ARED sessions in past 7 sols`,
+      whatItMayShow: 'Skipping strength workouts allows bones and muscles to weaken in low gravity.',
+      recommendedAction: 'Complete your scheduled resistance training session today.',
+      metricSummary: `${missedAredIn7} workouts missed in the last 7 days`,
     });
   }
 
@@ -153,15 +153,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'bone-turnover-marker',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Bone Health',
-      title: 'Bone-Turnover Lab Outside Range',
+      systemLabel: 'Bone Density',
+      title: 'Elevated Bone Mineral Loss Marker',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Bone mineral turnover may be changing; supports but does not replace DXA.',
-      recommendedAction: 'Repeat approved lab check on schedule and compare with prior values.',
-      metricSummary: 'Bone-turnover marker flagged for review',
+      whatItMayShow: 'Recent lab markers suggest faster bone mineral loss than expected.',
+      recommendedAction: 'Stay consistent with resistance workouts and follow up with your flight surgeon.',
+      metricSummary: 'Bone turnover marker flagged for review',
     });
   }
 
@@ -169,15 +169,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'bone-injury-symptom',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Bone Health',
-      title: 'Localized Bone Pain or Impact Injury',
+      systemLabel: 'Bone Density',
+      title: 'Persistent Bone Pain Reported',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Possible bone strain or impact injury requiring clinical assessment.',
-      recommendedAction: 'Modify activity under approved protocol, document event, and contact medical team.',
-      metricSummary: 'Self-reported localized bone pain',
+      whatItMayShow: 'Ongoing localized bone pain or swelling may indicate a stress injury.',
+      recommendedAction: 'Pause heavy loading on that area and report it to your flight surgeon.',
+      metricSummary: 'Localized bone pain logged',
     });
   }
 
@@ -185,49 +185,49 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'bone-post-landing-collapse',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Post-Landing',
-      title: 'Post-Landing Collapse / Unable to Stay Upright',
+      systemLabel: 'After Landing',
+      title: 'Unable to Stand Safely After Landing',
       severity: 'urgent',
       classification: 'Urgent clinical-review trigger',
-      whatItMayShow: 'Acute gravity-readaptation intolerance requiring immediate medical support.',
-      recommendedAction: 'Lie down safely immediately, hydrate if cleared, and initiate crew emergency medical protocol.',
-      metricSummary: 'Post-landing upright collapse flagged',
+      whatItMayShow: 'Your circulation and balance need immediate post-landing support.',
+      recommendedAction: 'Lie flat right away and request immediate crew medical assistance.',
+      metricSummary: 'Post-landing collapse or fainting reported',
     });
   } else if (latest.postLandingSymptoms) {
     pushAlert({
       id: 'bone-post-landing-symptoms',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'bone',
-      systemLabel: '4.1 Post-Landing',
-      title: 'Post-Landing Readaptation Dizziness or Balance Loss',
+      systemLabel: 'After Landing',
+      title: 'Dizziness or Unsteadiness After Landing',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Body is still readjusting to gravity; high-load tasks must wait until recovery criteria are met.',
-      recommendedAction: 'Rest, follow approved hydration/readaptation steps, and notify ASCR/medical team.',
-      metricSummary: `Phase: ${latest.postLandingPhase ?? 'Post-Landing Readapting'}`,
+      whatItMayShow: 'Your body is still readjusting to full gravity after landing.',
+      recommendedAction: 'Rest safely, rehydrate with electrolyte fluids, and avoid lifting heavy gear.',
+      metricSummary: `Status: ${latest.postLandingPhase ?? 'Post-Landing Readapting'}`,
     });
   }
 
-  // 4.2 Cardiovascular & Aerobic Fitness
+  // 2. Heart & Lungs
   const vo2PctOfBaseline = (latest.vo2PeakMlKgMin / baseline.vo2PeakMlKgMin) * 100;
   const evaFloor = env?.evaVo2Floor ?? 32.9;
   if (vo2PctOfBaseline < 80 || latest.vo2PeakMlKgMin < evaFloor) {
     pushAlert({
       id: 'cardio-vo2-floor',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: '4.2 Cardiovascular',
-      title: 'Aerobic Capacity Below NASA-STD-3001 Floor',
+      systemLabel: 'Heart & Lungs',
+      title: 'Aerobic Fitness Below Spacewalk Limit',
       severity: 'urgent',
       classification: 'NASA-backed threshold',
-      standardRef: 'NASA-STD-3001 V1 4001 / 4002 / 4003',
-      whatItMayShow: 'VO2 peak is below 80% pre-mission or EVA floor needed for demanding EVA/egress tasks.',
-      recommendedAction: 'Display readiness trend only; ASCR/medical team determines EVA or task clearance.',
-      metricSummary: `VO2 Peak ${latest.vo2PeakMlKgMin.toFixed(1)} ml/kg/min (${vo2PctOfBaseline.toFixed(0)}% base; EVA floor ${evaFloor})`,
+      standardRef: 'Aerobic Readiness Rule',
+      whatItMayShow: 'Cardiovascular endurance is lower than required for demanding spacewalks.',
+      recommendedAction: 'Resume scheduled cardio intervals and review with your flight surgeon.',
+      metricSummary: `Aerobic fitness ${vo2PctOfBaseline.toFixed(0)}% of baseline`,
     });
   }
 
@@ -238,15 +238,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'cardio-submax-hr-drift',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: '4.2 Cardiovascular',
-      title: 'Consecutive Elevated Submaximal Exercise HR',
+      systemLabel: 'Heart & Lungs',
+      title: 'Elevated Heart Rate During Light Exercise',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Heart is working harder for identical workload (possible dehydration, fatigue, or deconditioning).',
-      recommendedAction: 'Confirm sensor fit, review hydration and sleep, and repeat under approved protocol.',
-      metricSummary: `Submax HR ${latest.submaxHrBpm} bpm (+${hrDeltaNow} bpm vs ${baseline.submaxHrBpm} base)`,
+      whatItMayShow: 'Your heart is working noticeably harder during routine submaximal workouts.',
+      recommendedAction: 'Increase fluid intake, confirm strap fit, and prioritize recovery sleep.',
+      metricSummary: `Exercise HR ${latest.submaxHrBpm} bpm (+${hrDeltaNow} above baseline)`,
     });
   }
 
@@ -262,47 +262,47 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'cardio-urgent-orthostatic',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: '4.2 Cardiovascular',
-      title: 'Presyncope, Chest Discomfort, or Orthostatic Intolerance',
+      systemLabel: 'Heart & Lungs',
+      title: 'Chest Discomfort or Near-Fainting Symptoms',
       severity: 'urgent',
       classification: 'Urgent clinical-review trigger',
-      whatItMayShow: 'Possible orthostatic intolerance or acute cardiovascular event requiring immediate medical assistance.',
-      recommendedAction: 'Stop upright/LBNP activity immediately, sit or lie down safely, and follow emergency protocol.',
-      metricSummary: `BP ${latest.bpSystolic}/${latest.bpDiastolic} mmHg (${latest.bpPosture}) · Symptomatic`,
+      whatItMayShow: 'Heart or blood pressure response requires prompt medical evaluation.',
+      recommendedAction: 'Stop exertion, sit or lie down immediately, and contact your flight surgeon.',
+      metricSummary: `Blood pressure ${latest.bpSystolic}/${latest.bpDiastolic} mmHg`,
     });
   } else if (bpUrgentThreshold) {
     pushAlert({
       id: 'cardio-bp-range',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: '4.2 Cardiovascular',
-      title: 'Blood Pressure Significantly Outside Approved Range',
+      systemLabel: 'Heart & Lungs',
+      title: 'Blood Pressure Outside Safe Limits',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Blood pressure regulation is markedly outside approved individual limits.',
-      recommendedAction: 'Rest calmly 5 min with cuff at heart height, log posture, and escalate to Flight Surgeon.',
+      whatItMayShow: 'Measured blood pressure is significantly above or below your safe range.',
+      recommendedAction: 'Sit quietly for 5 minutes, repeat the measurement, and inform your flight surgeon.',
       metricSummary: `BP ${latest.bpSystolic}/${latest.bpDiastolic} mmHg (${latest.bpPosture})`,
     });
   } else if (bpOutOfRange) {
     pushAlert({
       id: 'cardio-bp-range',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: '4.2 Cardiovascular',
-      title: 'Blood Pressure Outside Approved Individual Range',
+      systemLabel: 'Heart & Lungs',
+      title: 'Blood Pressure Slightly Above Normal Range',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Blood-pressure regulation may be outside expected resting/exercise range.',
-      recommendedAction: 'Document posture and timing; repeat only under approved procedure.',
+      whatItMayShow: 'Blood pressure is mildly shifted from your personal Earth baseline.',
+      recommendedAction: 'Record posture clearly, hydrate well, and recheck after resting.',
       metricSummary: `BP ${latest.bpSystolic}/${latest.bpDiastolic} mmHg (${latest.bpPosture})`,
     });
   }
 
-  // Bio-Monitor / Wearable Vital Checks vs Personal Baseline
+  // Wearable / Biometric Checks vs Personal Baseline
   if (
     latest.restingHrBpm > baseline.restingHrRange[1] + 10 ||
     latest.restingHrBpm < baseline.restingHrRange[0] - 8
@@ -310,15 +310,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-resting-hr-urgent',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: 'Bio-Monitor · Heart',
-      title: 'Resting Heart Rate Significantly Off Baseline',
+      systemLabel: 'Heart & Lungs',
+      title: 'Resting Heart Rate Well Outside Normal',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Resting heart rate is well outside pre-flight baseline (possible dehydration, fever, or stress).',
-      recommendedAction: 'Rest calmly, hydrate 500 mL, and re-measure before strenuous tasks.',
-      metricSummary: `Resting HR ${latest.restingHrBpm} bpm (Normal ${baseline.restingHrRange[0]}–${baseline.restingHrRange[1]})`,
+      whatItMayShow: 'Resting pulse is markedly faster or slower than your healthy baseline.',
+      recommendedAction: 'Rest quietly, drink 500 ml of water, and recheck in 15 minutes.',
+      metricSummary: `Resting HR ${latest.restingHrBpm} bpm (normal ${baseline.restingHrRange[0]}–${baseline.restingHrRange[1]} bpm)`,
     });
   } else if (
     latest.restingHrBpm > baseline.restingHrRange[1] ||
@@ -327,15 +327,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-resting-hr-watch',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: 'Bio-Monitor · Heart',
-      title: 'Resting Heart Rate Elevated vs Personal Baseline',
+      systemLabel: 'Heart & Lungs',
+      title: 'Resting Heart Rate Slightly Elevated',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Heart rate is drifting higher than personal resting baseline.',
-      recommendedAction: 'Increase fluids and check sleep recovery tonight.',
-      metricSummary: `Resting HR ${latest.restingHrBpm} bpm (Normal ${baseline.restingHrRange[0]}–${baseline.restingHrRange[1]})`,
+      whatItMayShow: 'Resting heart rate is slightly above your normal zone due to fatigue or mild dehydration.',
+      recommendedAction: 'Drink water steadily today and prioritize a full 8-hour sleep period.',
+      metricSummary: `Resting HR ${latest.restingHrBpm} bpm (normal ${baseline.restingHrRange[0]}–${baseline.restingHrRange[1]} bpm)`,
     });
   }
 
@@ -344,15 +344,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-spo2',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: 'Bio-Monitor · SpO2',
-      title: isUrgentSpo2 ? 'Low Blood Oxygen (SpO2 < 92%)' : 'Borderline Blood Oxygen (SpO2)',
+      systemLabel: 'Heart & Lungs',
+      title: isUrgentSpo2 ? 'Blood Oxygen Critically Low' : 'Blood Oxygen Below Normal',
       severity: isUrgentSpo2 ? 'urgent' : 'caution',
       classification: isUrgentSpo2 ? 'Urgent clinical-review trigger' : 'Proposed operational trigger',
-      whatItMayShow: 'Oxygen saturation is below normal; inspect sensor fit and Hazard 5 cabin O2/CO2 loop.',
-      recommendedAction: 'Re-seat wearable pulse-ox sensor, verify cabin O2/CO2, and escalate if persistent.',
-      metricSummary: `SpO2 ${latest.spo2Pct}% (Normal >= ${baseline.spo2MinPct}%)`,
+      whatItMayShow: 'Oxygen saturation is lower than expected, which may reflect sensor fit or cabin air.',
+      recommendedAction: 'Reposition wrist sensor, verify cabin O2/CO2 levels, and notify your flight surgeon.',
+      metricSummary: `Blood oxygen ${latest.spo2Pct}% (normal ${baseline.spo2MinPct}%+)`,
     });
   }
 
@@ -361,15 +361,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-hrv',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'cardio',
-      systemLabel: 'Bio-Monitor · HRV',
-      title: isUrgentHrv ? 'Low HRV Autonomic Recovery' : 'HRV Recovery Slightly Below Baseline',
+      systemLabel: 'Heart & Lungs',
+      title: isUrgentHrv ? 'High Physical Strain & Fatigue' : 'Heart Recovery Lower Than Normal',
       severity: isUrgentHrv ? 'urgent' : 'caution',
       classification: isUrgentHrv ? 'Clinical-review trigger' : 'Proposed operational trigger',
-      whatItMayShow: 'Lower heart-rate variability reflects autonomic strain, poor sleep, or dehydration.',
-      recommendedAction: 'Prioritize hydration, sleep recovery, and lighter workload today.',
-      metricSummary: `HRV ${latest.hrvMs} ms (Baseline >= ${baseline.hrvMinMs} ms)`,
+      whatItMayShow: 'Low heart recovery (HRV) indicates poor sleep, stress, or low fluid intake.',
+      recommendedAction: 'Reduce non-essential workload, rehydrate, and aim for early rest tonight.',
+      metricSummary: `Recovery (HRV) ${latest.hrvMs} ms (normal ${baseline.hrvMinMs}+ ms)`,
     });
   }
 
@@ -381,15 +381,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-temp',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: 'Bio-Monitor · Temp',
-      title: latest.bodyTempC >= 38.0 ? 'Fever / Elevated Body Temperature' : 'Body Temperature Outside Baseline',
+      systemLabel: 'Fluids & Nutrition',
+      title: latest.bodyTempC >= 38.0 ? 'Fever Detected' : 'Body Temperature Outside Normal',
       severity: isUrgentTemp ? 'urgent' : 'caution',
       classification: isUrgentTemp ? 'Clinical-review trigger' : 'Proposed operational trigger',
-      whatItMayShow: 'Core/skin temperature is outside normal individual baseline range.',
-      recommendedAction: 'Verify thermometer reading, hydrate, rest, and log any immune symptoms.',
-      metricSummary: `Temp ${latest.bodyTempC.toFixed(1)}°C (Normal ${baseline.bodyTempCRange[0]}–${baseline.bodyTempCRange[1]}°C)`,
+      whatItMayShow: 'Body temperature is warmer or cooler than your normal resting baseline.',
+      recommendedAction: 'Confirm with an oral thermometer, hydrate, rest, and log any symptoms.',
+      metricSummary: `Body temperature ${latest.bodyTempC.toFixed(1)} °C`,
     });
   }
 
@@ -402,36 +402,36 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'wearable-glucose',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: '4.5 Metabolic',
-      title: latest.bloodGlucoseMgDl < 70 ? 'Low Blood Sugar (Hypoglycemia)' : 'Elevated Blood Sugar',
+      systemLabel: 'Fluids & Nutrition',
+      title: latest.bloodGlucoseMgDl < 70 ? 'Low Blood Glucose' : 'Elevated Blood Glucose',
       severity: isUrgentGlucose ? 'urgent' : 'caution',
       classification: isUrgentGlucose ? 'Clinical-review trigger' : 'Proposed operational trigger',
-      whatItMayShow: 'Blood glucose is outside your normal metabolic range.',
+      whatItMayShow: 'Blood sugar is outside your healthy fasting/resting range.',
       recommendedAction:
         latest.bloodGlucoseMgDl < 70
-          ? 'Consume quick carbohydrate + protein ration immediately and re-check in 15 min.'
-          : 'Hydrate with plain water and avoid high-sugar rations until re-checked.',
-      metricSummary: `Glucose ${latest.bloodGlucoseMgDl} mg/dL (Normal ${baseline.bloodGlucoseMgDlRange[0]}–${baseline.bloodGlucoseMgDlRange[1]})`,
+          ? 'Consume a balanced carbohydrate snack right away and recheck in 15 minutes.'
+          : 'Drink plain water, avoid simple sugars, and recheck before next meal.',
+      metricSummary: `Blood glucose ${latest.bloodGlucoseMgDl} mg/dL (normal ${baseline.bloodGlucoseMgDlRange[0]}–${baseline.bloodGlucoseMgDlRange[1]})`,
     });
   }
 
-  // 4.3 Muscle Health
+  // 3. Muscle Health
   if (latest.strengthPctBaseline < 80) {
     pushAlert({
       id: 'muscle-strength-v14024',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'muscle',
-      systemLabel: '4.3 Muscle Health',
-      title: 'Muscle Strength Below 80% Baseline',
+      systemLabel: 'Muscles',
+      title: 'Muscle Strength Below 80% Limit',
       severity: 'urgent',
       classification: 'NASA-backed threshold',
-      standardRef: 'NASA-STD-3001 V1 4024',
-      whatItMayShow: 'Strength may be too low for demanding EVA lifting and post-landing mobility.',
-      recommendedAction: 'Review workouts, check protein intake, and route to ASCR/medical team.',
-      metricSummary: `Strength ${latest.strengthPctBaseline.toFixed(1)}% of baseline (minimum >= 80%)`,
+      standardRef: 'Muscle Strength Rule',
+      whatItMayShow: 'Lower-body and core strength have dropped below safe limits for suit tasks.',
+      recommendedAction: 'Complete resistance workouts, prioritize daily protein, and consult your flight surgeon.',
+      metricSummary: `Strength ${latest.strengthPctBaseline.toFixed(1)}% (min 80%)`,
     });
   }
 
@@ -439,15 +439,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'muscle-ultrasound-drift',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'muscle',
-      systemLabel: '4.3 Muscle Health',
-      title: 'Ultrasound Muscle Cross-Sectional Size Drift',
+      systemLabel: 'Muscles',
+      title: 'Gradual Thigh Muscle Loss',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Possible early muscle atrophy despite ongoing resistance countermeasure plan.',
-      recommendedAction: 'Compare longitudinal ultrasound scans in Scans and verify protein + ARED load.',
-      metricSummary: `Ultrasound CSA ${latest.muscleCsaPctBaseline.toFixed(1)}% of baseline`,
+      whatItMayShow: 'Leg muscle volume is trending slightly below your mission target.',
+      recommendedAction: 'Review leg scan photos and keep daily calories and protein on target.',
+      metricSummary: `Thigh muscle size ${latest.muscleCsaPctBaseline.toFixed(1)}%`,
     });
   }
 
@@ -455,31 +455,31 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'muscle-clinical-pain',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'muscle',
-      systemLabel: '4.3 Muscle Health',
-      title: 'Activity-Limiting Muscle Pain or Strain',
+      systemLabel: 'Muscles',
+      title: 'Work-Limiting Muscle Pain',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Possible muscle strain, overuse injury, or condition requiring clinical review.',
-      recommendedAction: 'Modify ARED activity only under approved protocol and escalate if persistent.',
-      metricSummary: 'Self-reported persistent activity-limiting muscle symptoms',
+      whatItMayShow: 'Sharp or persistent muscle soreness may indicate an exercise strain.',
+      recommendedAction: 'Stop loading that muscle group and notify your flight surgeon.',
+      metricSummary: 'Limiting muscle pain flagged',
     });
   }
 
-  // 4.4 Vision / SANS
+  // 4. Eyes & Brain
   if (latest.visionSymptoms.length > 0) {
     pushAlert({
       id: 'sans-symptoms',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'vision-sans',
-      systemLabel: '4.4 Vision / SANS',
-      title: 'New or Worsening Visual / SANS Symptoms',
+      systemLabel: 'Eyes & Brain',
+      title: 'Vision Changes or Persistent Headache',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Possible refractive shift, optic-disc edema, or SANS-related neuro-ocular change.',
-      recommendedAction: 'Confirm symptom details and route to mission medical team for ophthalmic review.',
+      whatItMayShow: 'Headward fluid shift in low gravity can place extra pressure on the eyes.',
+      recommendedAction: 'Log details promptly and inform your flight surgeon for an eye exam.',
       metricSummary: `Reported: ${latest.visionSymptoms.join(', ')}`,
     });
   }
@@ -488,15 +488,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'sans-oct-overdue',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'vision-sans',
-      systemLabel: '4.4 Vision / SANS',
-      title: 'Scheduled OCT / Fundoscopy Exam Overdue',
+      systemLabel: 'Eyes & Brain',
+      title: 'Scheduled Eye Scan Overdue',
       severity: 'caution',
       classification: 'Protocol/compliance trigger',
-      whatItMayShow: 'Scheduled retinal and optic-nerve imaging is overdue for baseline comparison.',
-      recommendedAction: 'Complete OCT / fundoscopy protocol at next medical slot and log scan.',
-      metricSummary: 'Scheduled eye/SANS protocol overdue',
+      whatItMayShow: 'Your routine retinal check has not been logged on schedule.',
+      recommendedAction: 'Complete your eye scan and upload comparison images in Checks.',
+      metricSummary: 'Routine eye scan due',
     });
   }
 
@@ -508,32 +508,32 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'sans-iop-acuity',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'vision-sans',
-      systemLabel: '4.4 Vision / SANS',
-      title: 'IOP or Visual Acuity Shift Relative to Baseline',
+      systemLabel: 'Eyes & Brain',
+      title: 'Eye Pressure or Reading Sharpness Shifted',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Eye pressure or refraction may have shifted relative to pre-mission baseline.',
-      recommendedAction: 'Repeat tonometry under approved protocol and review with prior values.',
-      metricSummary: `IOP ${latest.iopMmHg} mmHg · Acuity Δ ${latest.acuityDeltaLines > 0 ? '+' : ''}${latest.acuityDeltaLines} lines`,
+      whatItMayShow: 'Eye fluid pressure or visual clarity differs from your pre-flight baseline.',
+      recommendedAction: 'Rest calmly, repeat the reading chart check, and schedule eye imaging.',
+      metricSummary: `Eye pressure ${latest.iopMmHg} mmHg · Chart shift ${latest.acuityDeltaLines > 0 ? '+' : ''}${latest.acuityDeltaLines} lines`,
     });
   }
 
-  // 4.5 Nutrition & Hydration (including V2 6109 context & nutrition symptoms)
+  // 5. Fluids & Nutrition
   if (latest.renalColicSymptoms) {
     pushAlert({
       id: 'nutrition-renal-colic',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: '4.5 Nutrition & Hydration',
-      title: 'Possible Renal Colic / Urinary Complication',
+      systemLabel: 'Fluids & Nutrition',
+      title: 'Possible Kidney Stone Symptoms',
       severity: 'urgent',
       classification: 'Urgent clinical-review trigger',
-      whatItMayShow: 'Possible kidney stone or acute urinary tract complication requiring urgent medical assessment.',
-      recommendedAction: 'Stop/modify activity under approved protocol, document pain onset & fluid intake, and escalate urgently.',
-      metricSummary: 'Flank/abdominal pain, dysuria, or hematuria flagged',
+      whatItMayShow: 'Flank pain, painful urination, or blood in urine requires immediate evaluation.',
+      recommendedAction: 'Stop strenuous activity immediately and contact your flight surgeon.',
+      metricSummary: 'Severe flank or urinary symptoms reported',
     });
   }
 
@@ -544,16 +544,16 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'nutrition-hydration-drift',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: '4.5 Nutrition & Hydration',
-      title: 'Low Hydration & Concentrated Urine Trend',
+      systemLabel: 'Fluids & Nutrition',
+      title: 'Low Fluid Intake or Concentrated Urine',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      standardRef: 'NASA-STD-3001 V2 6109 Context',
-      whatItMayShow: 'Low urine volume increases urine supersaturation and kidney-stone risk in microgravity.',
-      recommendedAction: 'Drink 500 mL water now and target personal baseline (habitat supplies ~2.5 L/d V2 6109).',
-      metricSummary: `Fluid ${latest.fluidIntakeMl} mL (goal ${baseline.fluidTargetMl} mL) · Urine ${latest.urineOutputMl} mL`,
+      standardRef: 'Hydration Rule',
+      whatItMayShow: 'Persistent dehydration significantly raises kidney stone risk in low gravity.',
+      recommendedAction: 'Drink 500 ml (2 full glasses) of water now and aim for 2.5 L daily.',
+      metricSummary: `Fluid ${latest.fluidIntakeMl} ml (target ${baseline.fluidTargetMl} ml)`,
     });
   }
 
@@ -563,15 +563,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'nutrition-intake-balance',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: '4.5 Nutrition & Hydration',
-      title: 'Multi-Day Caloric Shortfall or Elevated Sodium Trend',
+      systemLabel: 'Fluids & Nutrition',
+      title: 'Low Calorie Intake or High Sodium Days',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Energy deficit accelerates body-mass/bone loss; excess sodium worsens bone resorption and SANS risk.',
-      recommendedAction: 'Audit food acceptability/menu fatigue (Hazard 5.3) and swap high-sodium rations.',
-      metricSummary: `${latest.caloriesKcal} kcal (target ${baseline.calorieTargetKcal}) · Sodium ${latest.sodiumMg} mg`,
+      whatItMayShow: 'Under-eating or high salt intake speeds up muscle and bone loss.',
+      recommendedAction: 'Finish planned meals and choose lower-sodium ration packs tomorrow.',
+      metricSummary: `${latest.caloriesKcal} kcal · ${latest.sodiumMg} mg sodium`,
     });
   }
 
@@ -579,34 +579,34 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'nutrition-eating-symptoms',
       hazardId: 'gravity-fields',
-      hazardLabel: 'Hazard 4 · Gravity Fields',
+      hazardLabel: 'Risk 4 · Low Gravity',
       systemId: 'nutrition-hydration',
-      systemLabel: '4.5 Nutrition & Hydration',
-      title: 'Persistent Symptoms Affecting Eating or Hydration',
+      systemLabel: 'Fluids & Nutrition',
+      title: 'Difficulty Eating or Keeping Fluids Down',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Illness, food intolerance, or dehydration may be impairing nutrition and fluid retention.',
-      recommendedAction: 'Document symptoms, review fluid balance, and escalate to medical team if persistent.',
-      metricSummary: 'Self-reported nausea, anorexia, or swallowing difficulty',
+      whatItMayShow: 'Reduced appetite or digestive upset prevents meeting daily energy and hydration needs.',
+      recommendedAction: 'Take small frequent sips of water and inform your flight surgeon.',
+      metricSummary: 'Appetite or hydration difficulty reported',
     });
   }
 
   // =========================================================================
-  // HAZARD 1: SPACE RADIATION (Pages 2–3)
+  // RISK 1: RADIATION
   // =========================================================================
   if (latest.dosimetryStatus === 'stale' || latest.dosimetryLastUpdatedHoursAgo > 24) {
     pushAlert({
       id: 'rad-data-quality',
       hazardId: 'space-radiation',
-      hazardLabel: 'Hazard 1 · Space Radiation',
+      hazardLabel: 'Risk 1 · Radiation',
       systemId: 'radiation',
-      systemLabel: '1. Space Radiation',
-      title: 'Dosimetry Stale or Unavailable — Do Not Assume Nominal',
+      systemLabel: 'Radiation',
+      title: 'Radiation Badge Reading Outdated',
       severity: 'data-quality',
       classification: 'Data-quality trigger',
-      whatItMayShow: 'Personal dosimeter telemetry has not updated within 24h; symptom absence cannot substitute for dosimetry.',
-      recommendedAction: 'Verify personal dosimeter link and resync cabin ambient radiation telemetry.',
-      metricSummary: `Last verified reading ${latest.dosimetryLastUpdatedHoursAgo}h ago`,
+      whatItMayShow: 'Your personal radiation badge has not synced in over 24 hours.',
+      recommendedAction: 'Sync your radiation dosimeter badge and inspect cabin radiation sensors.',
+      metricSummary: `Last updated ${latest.dosimetryLastUpdatedHoursAgo} hours ago`,
     });
   }
 
@@ -614,17 +614,17 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'rad-spe-active',
       hazardId: 'space-radiation',
-      hazardLabel: 'Hazard 1 · Space Radiation',
+      hazardLabel: 'Risk 1 · Radiation',
       systemId: 'radiation',
-      systemLabel: '1. Space Radiation',
-      title: `Active Solar Particle Event Warning (${speState.eventId})`,
+      systemLabel: 'Radiation',
+      title: 'Active Solar Storm Warning',
       severity: 'urgent',
       classification: 'Official-warning relay',
-      whatItMayShow: 'Elevated solar proton flux may cause acute effects; app never issues an independent all-clear.',
+      whatItMayShow: 'Elevated solar radiation is hitting the hull. Extra shielding is required.',
       recommendedAction: speState.shelterOccupied
-        ? `Remain inside ${speState.assignedShelter} until official mission exit instructions.`
-        : `Acknowledge warning and move immediately to ${speState.assignedShelter}.`,
-      metricSummary: speState.shelterOccupied ? 'Shelter occupancy logged' : 'Awaiting shelter entry log',
+        ? `Remain inside ${speState.assignedShelter} until Mission Control confirms all-clear.`
+        : `Move immediately to ${speState.assignedShelter} and confirm inside the app.`,
+      metricSummary: speState.shelterOccupied ? 'Sheltered safely' : 'Proceed to radiation shelter',
     });
   }
 
@@ -632,15 +632,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'rad-neuro-emergency',
       hazardId: 'space-radiation',
-      hazardLabel: 'Hazard 1 · Space Radiation',
+      hazardLabel: 'Risk 1 · Radiation',
       systemId: 'radiation',
-      systemLabel: '1. Space Radiation',
-      title: 'Neurological / Major Functional Change Flagged',
+      systemLabel: 'Radiation',
+      title: 'Sudden Confusion or Balance Loss',
       severity: 'urgent',
       classification: 'Urgent clinical-review trigger',
-      whatItMayShow: 'New confusion, coordination difficulty, or collapse requires immediate emergency medical response.',
-      recommendedAction: 'Do not treat as routine fatigue; initiate emergency crew medical protocol immediately.',
-      metricSummary: 'Urgent CNS symptom report logged',
+      whatItMayShow: 'Acute balance, coordination, or alertness changes require urgent crew support.',
+      recommendedAction: 'Stop all work immediately and alert crew members and your flight surgeon.',
+      metricSummary: 'Urgent neurological alert flagged',
     });
   } else if (
     latest.radiationProdromalSymptoms.length > 0 ||
@@ -651,23 +651,23 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'rad-prodromal-log',
       hazardId: 'space-radiation',
-      hazardLabel: 'Hazard 1 · Space Radiation',
+      hazardLabel: 'Risk 1 · Radiation',
       systemId: 'radiation',
-      systemLabel: '1. Space Radiation',
-      title: 'Event-Linked Radiation Symptom / BFO Review Logged',
+      systemLabel: 'Radiation',
+      title: 'Symptoms Logged After Radiation Exposure',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Logged for clinician follow-up; symptoms cannot confirm ARS or estimate absorbed dose.',
-      recommendedAction: 'Preserve complete timeline (including latent phase), link hydration, and upload timestamped skin photos.',
+      whatItMayShow: 'Digestive upset, fatigue, or skin changes recorded for flight surgeon review.',
+      recommendedAction: 'Maintain hydration, log dated skin photos if needed, and update symptoms.',
       metricSummary:
         latest.radiationProdromalSymptoms.length > 0
           ? latest.radiationProdromalSymptoms.join(', ')
-          : `BFO: ${latest.bfoLabStatus ?? 'Nominal'} · Skin/GI flagged`,
+          : 'Skin or digestive symptom flagged',
     });
   }
 
   // =========================================================================
-  // HAZARD 2: ISOLATION & CONFINEMENT (Pages 4–9)
+  // RISK 2: ISOLATION & SLEEP
   // =========================================================================
   let behavioralSeverity: AlertSeverity = 'nominal';
   const latestVault = vault[vault.length - 1];
@@ -694,15 +694,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'beh-sleep-consecutive',
       hazardId: 'isolation-confinement',
-      hazardLabel: 'Hazard 2 · Isolation & Confinement',
+      hazardLabel: 'Risk 2 · Isolation & Sleep',
       systemId: 'behavioral',
-      systemLabel: '2.1 Sleep Duration',
-      title: 'Sleep Below 8-Hour Evidence Reference',
+      systemLabel: 'Sleep & Mood',
+      title: 'Less Than 8 Hours Sleep (2 Nights)',
       severity: 'caution',
       classification: 'Evidence-based reference point',
-      whatItMayShow: 'Chronic sleep loss may accumulate and impair alertness, mood, and HPA stress regulation.',
-      recommendedAction: 'Adjust light-exposure schedule, check cabin noise/CO2, and protect private rest window.',
-      metricSummary: `Last 2 sols: ${prevVault.sleepHours.toFixed(1)}h & ${latestVault.sleepHours.toFixed(1)}h (ref ${baseline.sleepTargetHours}h)`,
+      whatItMayShow: 'Repeated short sleep reduces focus, slows reaction speed, and lowers mood.',
+      recommendedAction: 'Dim cabin lights 1 hour before rest and schedule 8 hours of sleep tonight.',
+      metricSummary: `Last 2 nights: ${prevVault.sleepHours.toFixed(1)}h & ${latestVault.sleepHours.toFixed(1)}h`,
     });
   }
 
@@ -711,15 +711,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'beh-acute-wakefulness',
       hazardId: 'isolation-confinement',
-      hazardLabel: 'Hazard 2 · Isolation & Confinement',
+      hazardLabel: 'Risk 2 · Isolation & Sleep',
       systemId: 'behavioral',
-      systemLabel: '2.1 Acute Sleep Loss',
-      title: 'Continuous Wakefulness >= 16 Hours',
+      systemLabel: 'Sleep & Mood',
+      title: 'Awake 16 Hours or Longer',
       severity: 'urgent',
       classification: 'Evidence-based reference point',
-      whatItMayShow: 'Acute sleep deprivation impairs vigilance and decision-making before high-risk tasks.',
-      recommendedAction: 'Defer non-emergency safety-critical tasks and initiate approved rest opportunity.',
-      metricSummary: `${hoursAwakeNow.toFixed(1)}h continuous wakefulness`,
+      whatItMayShow: 'Extended wakefulness sharply increases reaction lapses on precision tasks.',
+      recommendedAction: 'Defer high-precision operations and begin a recovery sleep period.',
+      metricSummary: `Awake ${hoursAwakeNow.toFixed(1)} hours`,
     });
   }
 
@@ -730,15 +730,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'beh-workload-overload',
       hazardId: 'isolation-confinement',
-      hazardLabel: 'Hazard 2 · Isolation & Confinement',
+      hazardLabel: 'Risk 2 · Isolation & Sleep',
       systemId: 'behavioral',
-      systemLabel: '2.1 Workload',
-      title: criticalOverload ? 'Critical Workload Overload (>10h/day)' : 'Sustained Workload Above 6.5h/day Reference',
+      systemLabel: 'Sleep & Mood',
+      title: criticalOverload ? 'Sustained Heavy Workload (10h+ Daily)' : 'Daily Workload Above 6.5 Hours',
       severity: criticalOverload ? 'urgent' : 'caution',
       classification: 'Evidence-based reference point',
-      whatItMayShow: 'Schedule creep reduces sleep recovery and increases stress and crew-ground tension.',
-      recommendedAction: 'Exercise crew schedule autonomy to defer low-priority tasks and protect sleep.',
-      metricSummary: `Recent workload: ${last3Vault.map((v) => `${v.workloadHours}h`).join(' / ')}`,
+      whatItMayShow: 'Extended shift length leaves insufficient time for sleep and recovery.',
+      recommendedAction: 'Reschedule non-critical maintenance tasks to protect rest time.',
+      metricSummary: `Recent shifts: ${last3Vault.map((v) => `${v.workloadHours}h`).join(' / ')}`,
     });
   }
 
@@ -748,37 +748,37 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'beh-pvt-vigilance',
       hazardId: 'isolation-confinement',
-      hazardLabel: 'Hazard 2 · Isolation & Confinement',
+      hazardLabel: 'Risk 2 · Isolation & Sleep',
       systemId: 'behavioral',
-      systemLabel: '2.1 Fatigue & Alertness',
-      title: 'PVT-B Psychomotor Vigilance Drift vs Personal Baseline',
+      systemLabel: 'Sleep & Mood',
+      title: 'Slower Alertness & Reaction Score',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Reaction time or lapses (>355 ms) indicate reduced sustained attention.',
-      recommendedAction: 'Cross-check sleep debt and cabin CO2; run private check-in before high-risk tasks.',
-      metricSummary: `Mean RT ${latestPvt.meanRtMs} ms (base ${baseline.pvtBaselineMs} ms) · ${latestPvt.lapsesCount} lapses`,
+      whatItMayShow: 'Fatigue or elevated cabin CO2 is slowing your focus and response speed.',
+      recommendedAction: 'Check sleep debt and cabin air quality before critical procedures.',
+      metricSummary: `Mean ${(latestPvt.meanRtMs / 1000).toFixed(2)}s (normal ${(baseline.pvtBaselineMs / 1000).toFixed(2)}s)`,
     });
   }
 
   // =========================================================================
-  // HAZARD 3: DISTANCE FROM EARTH (Pages 10–11)
+  // RISK 3: DISTANCE FROM EARTH
   // =========================================================================
   const vaultCommTensionCount = last3Vault.filter((v) => v.commDelayTension).length;
   if (latest.commBreakdownFlag || vaultCommTensionCount >= 2) {
     pushAlert({
       id: 'dist-crew-ground-comm',
       hazardId: 'distance-from-earth',
-      hazardLabel: 'Hazard 3 · Distance from Earth',
+      hazardLabel: 'Risk 3 · Distance From Earth',
       systemId: 'distance',
-      systemLabel: '3.1 Crew-Ground Comms',
-      title: 'Crew-Ground Communication Delay / Breakdown Flagged',
+      systemLabel: 'Communications',
+      title: 'Crew–Ground Communication Delay Issue',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Out-of-sequence or delayed communications may impair coordination, trust, and situational awareness.',
-      recommendedAction: 'Use structured async summary templates and confirm shared understanding.',
+      whatItMayShow: 'Signal latency is causing out-of-order messages or crew-ground friction.',
+      recommendedAction: 'Send concise numbered action items and confirm Ground acknowledgment.',
       metricSummary: latest.commBreakdownFlag
-        ? `Async breakdown logged (${env.oneWayLatencyLabel})`
-        : `${vaultCommTensionCount} comm tension logs in 3 sols`,
+        ? `Comms issue flagged (${env.oneWayLatencyLabel})`
+        : `${vaultCommTensionCount} recent delay friction notes`,
     });
   }
 
@@ -786,20 +786,20 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'dist-seu-integrity',
       hazardId: 'distance-from-earth',
-      hazardLabel: 'Hazard 3 · Distance from Earth',
+      hazardLabel: 'Risk 3 · Distance From Earth',
       systemId: 'distance',
-      systemLabel: '3.2 Hardware / SEU',
-      title: 'Single Event Upset (SEU) Telemetry Checksum Warning',
+      systemLabel: 'Device Memory',
+      title: 'Device Memory Integrity Check Needed',
       severity: 'data-quality',
       classification: 'Data-quality trigger',
-      whatItMayShow: 'Cosmic radiation hardware upset may corrupt edge telemetry integrity until re-verified.',
-      recommendedAction: 'Re-verify local checksum and inspect store-and-forward queue packets.',
-      metricSummary: 'SEU parity verification mismatch',
+      whatItMayShow: 'Space radiation may have flipped a bit in local cached storage.',
+      recommendedAction: 'Run the verification check in Earth Sync before transmitting.',
+      metricSummary: 'Memory checksum needs verification',
     });
   }
 
   // =========================================================================
-  // HAZARD 5: HOSTILE / CLOSED ENVIRONMENTS (Pages 19–20)
+  // RISK 5: CABIN & SUITS
   // =========================================================================
   const cabinTemp = latest.cabinTempC ?? 22.3;
   const cabinPressure = latest.cabinPressureKpa ?? 101.3;
@@ -811,15 +811,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-data-availability',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.1 Data Availability',
-      title: 'Cabin Environmental Telemetry Stale or Unverified',
+      systemLabel: 'Cabin Air',
+      title: 'Cabin Environmental Sensors Outdated',
       severity: 'data-quality',
       classification: 'Data-quality trigger',
-      whatItMayShow: 'Environmental status cannot be confirmed when readings are missing or outdated.',
-      recommendedAction: 'Inspect environmental monitoring bus and avoid treating absent readings as Normal.',
-      metricSummary: 'Cabin MQTT/SpaceWire sensor status stale',
+      whatItMayShow: 'Cabin air readings are stale and cannot confirm breathing safety.',
+      recommendedAction: 'Inspect wall environmental sensors and restore live cabin telemetry.',
+      metricSummary: 'Cabin sensor stream paused',
     });
   }
 
@@ -835,15 +835,15 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-cabin-conditions',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.1 Cabin Environment',
-      title: isUrgentEnv ? 'Cabin Environment Outside Safe Limits' : 'Cabin Air / Acoustic Drift Detected',
+      systemLabel: 'Cabin Air',
+      title: isUrgentEnv ? 'Cabin Air Outside Safe Limits' : 'Cabin Warm, Stuffy, or Noisy',
       severity: isUrgentEnv ? 'urgent' : 'caution',
       classification: isUrgentEnv ? 'Clinical-review trigger' : 'Proposed operational trigger',
-      whatItMayShow: 'Cabin CO2, temperature, pressure, O2, or noise may affect health, sleep, and cognitive function.',
-      recommendedAction: 'Follow approved ECLSS environmental procedure and flag persistent readings for review.',
-      metricSummary: `CO2 ${cabinCo2.toFixed(1)} mmHg · ${cabinTemp.toFixed(1)}°C · ${cabinPressure.toFixed(1)} kPa · O2 ${cabinO2.toFixed(1)}%`,
+      whatItMayShow: 'Elevated CO2, high heat, or pressure shift can cause headaches and fatigue.',
+      recommendedAction: 'Check CO2 scrubbers and airflow fans, and alert the flight crew.',
+      metricSummary: `CO2 ${cabinCo2.toFixed(1)} mmHg · ${cabinTemp.toFixed(1)} °C · O2 ${cabinO2.toFixed(1)}%`,
     });
   }
 
@@ -851,28 +851,28 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-eva-urgent',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.2 EVA Health',
-      title: 'Urgent EVA-Related Symptom Flagged',
+      systemLabel: 'Spacewalk',
+      title: 'Urgent Spacewalk Symptom Reported',
       severity: 'urgent',
       classification: 'Urgent clinical-review trigger',
-      whatItMayShow: 'Severe breathlessness, chest pain, or collapse during/after EVA requires immediate emergency care.',
-      recommendedAction: 'Follow approved emergency EVA termination/recovery protocol; notify medical team immediately.',
-      metricSummary: `EVA Phase: ${latest.evaStatus ?? 'In-EVA Spacewalk'}`,
+      whatItMayShow: 'Shortness of breath, chest pain, or dizziness in a suit requires urgent action.',
+      recommendedAction: 'Halt spacewalk safely, return to airlock, and contact your flight surgeon.',
+      metricSummary: `Phase: ${latest.evaStatus ?? 'In-EVA Spacewalk'}`,
     });
   } else if (latest.evaSymptoms && latest.evaSymptoms.length > 0) {
     pushAlert({
       id: 'env-eva-symptoms',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.2 EVA Health',
-      title: 'New or Worsening EVA-Related Symptoms',
+      systemLabel: 'Spacewalk',
+      title: 'Spacewalk Discomfort Logged',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Possible decompression, hypoxia, joint strain, or suit-related issue requiring medical review.',
-      recommendedAction: 'Document EVA phase/symptoms and escalate; app never approves or clears EVA.',
+      whatItMayShow: 'Joint ache, suit fit issue, or mild dizziness noted during spacewalk prep or activity.',
+      recommendedAction: 'Check suit pressure and fit, log symptoms clearly, and notify medical support.',
       metricSummary: latest.evaSymptoms.join(', '),
     });
   }
@@ -881,28 +881,28 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-food-safety',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.3 Food Safety',
-      title: 'Suspected Food-Safety Event or Adverse Reaction',
+      systemLabel: 'Food Safety',
+      title: 'Suspected Food Spoilage or Stomach Upset',
       severity: 'urgent',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Suspected spoiled food, contamination, allergic reaction, or GI distress after eating.',
-      recommendedAction: 'Document food lot/time, stop suspect item only under approved protocol, and escalate.',
-      metricSummary: 'Food safety / adverse GI reaction logged',
+      whatItMayShow: 'A swollen ration pack or contaminated meal may cause crew illness.',
+      recommendedAction: 'Quarantine that food pouch immediately and inform your flight surgeon.',
+      metricSummary: 'Food safety issue flagged',
     });
   } else if ((latest.foodAcceptabilityScore ?? 3) <= 2) {
     pushAlert({
       id: 'env-food-acceptability',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.3 Food Variety',
-      title: 'Low Food Acceptability / Menu Fatigue Risk',
+      systemLabel: 'Food Safety',
+      title: 'Low Meal Satisfaction',
       severity: 'caution',
       classification: 'Proposed operational trigger',
-      whatItMayShow: 'Reduced food acceptability can lower calorie and nutrient intake.',
-      recommendedAction: 'Log preferred ration swaps and review Hazard 4.5 caloric trend.',
+      whatItMayShow: 'Disliking ration packs increases the risk of falling short on daily calories.',
+      recommendedAction: 'Rotate to preferred ration packs and track daily calorie totals.',
       metricSummary: `Food rating ${latest.foodAcceptabilityScore}/5`,
     });
   }
@@ -911,14 +911,14 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-immune-symptoms',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.3 Immune / Infection',
-      title: 'New Immune or Infection Symptoms Logged',
+      systemLabel: 'Cabin Air',
+      title: 'Illness or Skin Symptoms Logged',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Possible immune dysregulation or infection in a closed habitat requiring medical review.',
-      recommendedAction: 'Track fever, rash, or sore throat trend and notify Flight Surgeon.',
+      whatItMayShow: 'Mild infections or skin irritation can spread in closed spacecraft habitats.',
+      recommendedAction: 'Rest, stay hydrated, avoid close sharing, and update your flight surgeon.',
       metricSummary: latest.immuneInfectionSymptoms.join(', '),
     });
   }
@@ -927,19 +927,19 @@ export function evaluateTelemetry(
     pushAlert({
       id: 'env-microbiome-symptoms',
       hazardId: 'hostile-closed',
-      hazardLabel: 'Hazard 5 · Hostile / Closed Environments',
+      hazardLabel: 'Risk 5 · Cabin & Suits',
       systemId: 'hostile-closed',
-      systemLabel: '5.3 Microbiome',
-      title: 'Persistent Microbiome GI or Skin Symptoms',
+      systemLabel: 'Cabin Air',
+      title: 'Ongoing Digestive or Skin Change',
       severity: 'caution',
       classification: 'Clinical-review trigger',
-      whatItMayShow: 'Persistent GI or skin change may reflect closed-environment microbiome shift.',
-      recommendedAction: 'Link symptoms with diet & cabin environment context for medical review.',
-      metricSummary: 'Persistent GI / skin symptom flagged',
+      whatItMayShow: 'Closed habitats can gradually shift digestive and skin balance.',
+      recommendedAction: 'Keep notes alongside meals and cabin sensors for flight surgeon review.',
+      metricSummary: 'Digestive or skin change flagged',
     });
   }
 
-  // Safe streaks (reward adherence & logging, NEVER penalize negative mood!)
+  // Safe adherence streaks (reward consistency; never penalize symptom/mood reporting)
   let aredStreakDays = 0;
   for (let i = history.length - 1; i >= 0; i--) {
     if (history[i].aredCompleted) aredStreakDays++;

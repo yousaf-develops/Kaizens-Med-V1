@@ -129,7 +129,7 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
     }
     serverRef.current = null;
     setStatus('disconnected');
-    setStatusMessage('Bluetooth wearable disconnected.');
+    setStatusMessage('Watch unlinked.');
   }, [cleanupStreams]);
 
   useEffect(() => {
@@ -389,12 +389,12 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
       if (foundServices.length === 0) {
         setStatus('connected');
         setStatusMessage(
-          `Paired with ${devName}, but this device does not expose standard Bluetooth Health GATT services (0x180D/0x1822/0x1809). Enable HR broadcast in your watch settings or import its export file.`
+          `Connected to ${devName}, but no health services were broadcast. Enable health sharing on your device or import a file.`
         );
       } else {
         setStatus('connected');
         setStatusMessage(
-          `Connected live to ${devName} (${foundServices.join(', ')}). Streaming real GATT telemetry.`
+          `Connected live to ${devName}.`
         );
       }
     },
@@ -411,7 +411,7 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
       if (!nav.bluetooth || !check.supported) {
         setStatus('error');
         setStatusMessage(
-          'Web Bluetooth is unavailable here. Use Google Chrome or Microsoft Edge over HTTPS, or launch Live GATT Stream below to verify parsing.'
+          'This browser does not support Bluetooth pairing. Use Chrome or Edge, or use the simulated wearable streams below.'
         );
         return;
       }
@@ -420,8 +420,8 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
         setStatus('connecting');
         setStatusMessage(
           mode === 'medical'
-            ? 'Opening Bluetooth scanner for health wearables...'
-            : 'Scanning all nearby Bluetooth Low Energy devices...'
+            ? 'Scanning for nearby health wearables...'
+            : 'Scanning for all nearby Bluetooth devices...'
         );
 
         const requestOptions =
@@ -449,7 +449,7 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
           cleanupStreams();
           setStatus('disconnected');
           setStatusMessage(
-            `${device.name || 'Wearable'} disconnected (out of range or turned off). Click Reconnect to resume.`
+            `${device.name || 'Wearable'} disconnected. Select Reconnect to resume.`
           );
         };
         device.addEventListener('gattserverdisconnected', onDisconnected);
@@ -457,7 +457,7 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
         const server = await device.gatt?.connect();
         if (!server) {
           setStatus('error');
-          setStatusMessage('Device selected, but its Bluetooth GATT server failed to open.');
+          setStatusMessage('Device found, but failed to open Bluetooth connection.');
           return;
         }
 
@@ -473,8 +473,8 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
           setStatus('disconnected');
           setStatusMessage(
             mode === 'medical'
-              ? 'No wearable selected. If your watch did not appear, switch to "All Nearby BLE Devices" and pair again.'
-              : 'Bluetooth pairing cancelled.'
+              ? 'No wearable selected. Try scanning all nearby devices.'
+              : 'Device selection cancelled.'
           );
         } else if (
           errName === 'SecurityError' ||
@@ -483,11 +483,11 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
         ) {
           setStatus('error');
           setStatusMessage(
-            'The embedded preview frame blocks Web Bluetooth hardware access. Open the app in a standalone Chrome/Edge tab, or run the Live BLE GATT Loopback below.'
+            'Embedded preview frames restrict Bluetooth pairing. Open in a standalone Chrome or Edge tab, or use a simulated stream below.'
           );
         } else {
           setStatus('error');
-          setStatusMessage(errMsg || 'Bluetooth connection failed.');
+          setStatusMessage(errMsg || 'Could not connect to wearable.');
         }
       }
     },
@@ -517,23 +517,23 @@ export function useBluetoothWearable(options: UseBluetoothWearableOptions = {}) 
    * even inside restricted iframe previews without physical BLE hardware.
    */
   const startSimulatedGattStream = useCallback(
-    (scenario: 'normal' | 'drift' = 'normal') => {
+    async (scenario: 'normal' | 'drift' = 'normal') => {
       cleanupStreams();
       rrWindowRef.current = [];
       const devName =
         scenario === 'normal'
-          ? 'Polar H10 + Garmin BLE (GATT Loopback)'
-          : 'Polar H10 BLE Stress Stream (GATT Loopback)';
+          ? 'Simulated Wearable (Normal)'
+          : 'Simulated Wearable (Elevated)';
 
       setDeviceInfo({
         name: devName,
-        manufacturer: 'Bluetooth SIG GATT 0x180D / 0x1822 / 0x1809',
-        model: 'Binary Packet Loopback',
+        manufacturer: 'Crew Telemetry Sim',
+        model: 'GATT Stream v1',
         batteryPct: 86,
-        supportedServices: ['Heart Rate (0x2A37)', 'Pulse Ox (0x2A5F)', 'Thermometer (0x2A1C)'],
+        supportedServices: ['Heart Rate', 'Blood Oxygen', 'Body Temperature'],
       });
       setStatus('simulated');
-      setStatusMessage(`Live GATT binary stream active from ${devName}.`);
+      setStatusMessage(`Streaming live readings from ${devName}.`);
 
       let tick = 0;
       const emitPacket = () => {

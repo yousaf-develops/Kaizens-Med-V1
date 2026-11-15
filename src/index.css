@@ -15,7 +15,7 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #090b0f;
+    background-color: #000000;
     color: #f4f6f9;
     overflow-x: hidden;
     letter-spacing: -0.012em;
@@ -347,7 +347,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(16, 18, 24, 0.5);
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {

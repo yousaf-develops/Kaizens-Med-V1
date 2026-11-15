@@ -32,8 +32,18 @@ type StatusFilter = 'all' | 'flagged' | 'nasa';
 const STATUS_DISPLAY: Record<AlertSeverity, { label: string; cls: string }> = {
   nominal: { label: '● Normal', cls: 'text-emerald-400' },
   caution: { label: '▲ Watch', cls: 'text-amber-400' },
-  urgent: { label: '✖ Alert', cls: 'text-rose-400' },
-  'data-quality': { label: '◌ Stale', cls: 'text-zinc-400' },
+  urgent: { label: '✖ Not Normal', cls: 'text-rose-400' },
+  'data-quality': { label: '◌ Update Needed', cls: 'text-zinc-400' },
+};
+
+const FRIENDLY_TRIGGER_LABELS: Record<string, string> = {
+  'NASA-backed threshold': 'Core Safety Limit',
+  'App heuristic / derived trigger': 'Early Warning',
+  'Data-quality trigger': 'Outdated Sensor Check',
+  'External operational protocol': 'Flight Rule Protocol',
+  'Subjective rating scale': 'Self-Reported Scale',
+  'Research / investigational countermeasure': 'Preventive Protocol',
+  'Opt-in / privacy-bounded threshold': 'Private Guardrail',
 };
 
 export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
@@ -103,14 +113,14 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 tabular-nums">
-            <span>Core 5 Hazards</span>
+            <span>5 Mission Health Risks</span>
             <span aria-hidden="true">·</span>
-            <span>{rows.length} Parameter Modules</span>
+            <span>{rows.length} Monitored Checks</span>
             <span aria-hidden="true">·</span>
-            <span>{nasaBackedTotal} NASA-STD-3001</span>
+            <span>{nasaBackedTotal} Safety Standards</span>
           </div>
           <h2 className="text-2xl font-display font-bold text-white">
-            Core 5 Spaceflight Hazards
+            5 Core Space Health Risks
           </h2>
         </div>
 
@@ -143,7 +153,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                   : 'text-zinc-300 hover:text-white'
               }`}
             >
-              Flagged ({flaggedTotal})
+              Needs Attention ({flaggedTotal})
             </button>
             <button
               type="button"
@@ -157,7 +167,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                   : 'text-zinc-300 hover:text-white'
               }`}
             >
-              NASA-STD
+              Standards
             </button>
           </div>
 
@@ -167,7 +177,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
               onClick={handleToggleExpandAll}
               className="btn-mono-glass px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap cursor-pointer"
             >
-              {expandAll ? 'Collapse' : 'Expand All'}
+              {expandAll ? 'Collapse All' : 'Expand All'}
             </button>
           )}
         </div>
@@ -185,7 +195,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                 : 'glass-3d-recessed text-zinc-300 hover:text-white hover:border-white/30'
             }`}
           >
-            All 5 Hazards
+            All 5 Risks
           </button>
           {RESEARCH_DOMAINS.map((dom) => {
             const active = activeDomain === dom.id;
@@ -223,7 +233,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                 : 'glass-3d-recessed text-zinc-300 hover:text-white hover:border-white/30'
             }`}
           >
-            Alerts (9)
+            Alert Rules (9)
           </button>
         </div>
 
@@ -234,8 +244,8 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search hazards or triggers..."
-              aria-label="Search research parameters"
+              placeholder="Search health checks..."
+              aria-label="Search health checks"
               className="glass-3d-recessed w-full rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder:text-zinc-400 focus:outline-none focus:border-white/35"
             />
           </div>
@@ -255,7 +265,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
               onClick={() => onNavigateTab(activeDomainMeta.targetTab)}
               className="text-xs font-semibold text-white hover:text-zinc-300 inline-flex items-center gap-1 cursor-pointer shrink-0"
             >
-              Open Module <ArrowUpRight className="h-3.5 w-3.5" />
+              Open Section <ArrowUpRight className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
@@ -268,7 +278,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
             <ShieldAlert className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <strong className="text-white">Clinical Scope:</strong>{' '}
-              Supports crew self-monitoring and escalation only; never diagnoses disease, estimates radiation dose from symptoms, issues independent all-clears, or grants EVA/duty clearance.
+              Helps monitor mission health and flag readings for flight surgeon review; never replaces medical diagnosis.
             </div>
           </div>
 
@@ -293,7 +303,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
         <div className="space-y-2.5">
           {filteredRows.length === 0 ? (
             <div className="glass-3d-recessed rounded-2xl p-6 text-center text-sm text-zinc-400">
-              No matching parameters.
+              No matching health checks found.
             </div>
           ) : (
             filteredRows.map((row) => {
@@ -354,26 +364,20 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                     <div className="reveal-panel px-4 pb-4 pt-3 border-t border-white/10 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
                         <span>
-                          Alert Class: <strong className="text-zinc-200">{row.triggerClass}</strong>
+                          Check Type: <strong className="text-zinc-200">{FRIENDLY_TRIGGER_LABELS[row.triggerClass] ?? row.triggerClass}</strong>
                         </span>
+                        <span>Frequency: <strong className="text-zinc-200">{row.dataSourceUpdate}</strong></span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
-                        <div className="glass-3d-recessed rounded-xl p-3 space-y-1">
-                          <div className="text-xs font-semibold text-white">Trigger</div>
-                          <p className="text-zinc-300 leading-snug">{row.whenAppAlerts}</p>
-                        </div>
-                        <div className="glass-3d-recessed rounded-xl p-3 space-y-1">
-                          <div className="text-xs font-semibold text-white">Meaning</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div className="glass-3d-recessed rounded-xl p-3.5 space-y-1">
+                          <div className="text-xs font-semibold text-white">What This Means</div>
                           <p className="text-zinc-300 leading-snug">{row.whatAlertMayShow}</p>
+                          <p className="text-xs text-zinc-400 pt-1">Triggers when: {row.whenAppAlerts}</p>
                         </div>
-                        <div className="glass-3d-recessed rounded-xl p-3 space-y-1">
-                          <div className="text-xs font-semibold text-white">Action</div>
+                        <div className="glass-3d-recessed rounded-xl p-3.5 space-y-1">
+                          <div className="text-xs font-semibold text-white">What To Do</div>
                           <p className="text-zinc-300 leading-snug">{row.whatAppDoes}</p>
-                        </div>
-                        <div className="glass-3d-recessed rounded-xl p-3 space-y-1">
-                          <div className="text-xs font-semibold text-white">Cadence</div>
-                          <p className="text-zinc-300 leading-snug">{row.dataSourceUpdate}</p>
                         </div>
                       </div>
 
@@ -381,7 +385,7 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                         <div className="glass-3d-recessed rounded-xl p-3.5 space-y-2">
                           <div className="text-xs font-semibold text-white flex items-center gap-1.5">
                             <ClipboardCheck className="h-4 w-4 text-zinc-300" />
-                            Self-Care Steps
+                            Simple Action Steps
                           </div>
                           <ol className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-sm text-zinc-300">
                             {row.actionableSteps.map((step, i) => (
@@ -412,14 +416,14 @@ export const ResearchMatrixSection: React.FC<ResearchMatrixSectionProps> = ({
                                 onClick={() => onInspectOrgan(row.linkedSystemId!)}
                                 className="text-sm font-semibold text-zinc-300 hover:text-white inline-flex items-center gap-1 cursor-pointer"
                               >
-                                Body HUD <ArrowUpRight className="h-4 w-4" />
+                                Inspect Body <ArrowUpRight className="h-4 w-4" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => onOpenCheckIn(row.linkedSystemId)}
                                 className="btn-mono-primary px-4 py-1.5 rounded-full text-sm font-semibold cursor-pointer"
                               >
-                                Log Reading
+                                Update Reading
                               </button>
                             </>
                           )}

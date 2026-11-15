@@ -47,10 +47,10 @@ interface HudOverviewProps {
 }
 
 const REGION_LABEL: Record<SystemId, string> = {
-  'vision-sans': 'Brain & Eyes',
-  cardio: 'Heart',
-  'nutrition-hydration': 'Hydration',
-  bone: 'Bones',
+  'vision-sans': 'Eyes & Brain',
+  cardio: 'Heart & Lungs',
+  'nutrition-hydration': 'Fluids & Nutrition',
+  bone: 'Bone Density',
   muscle: 'Muscles',
   radiation: 'Radiation',
 };
@@ -76,16 +76,16 @@ const SEVERITY_META: Record<
     bgColor: 'bg-amber-500/12',
   },
   urgent: {
-    text: '✖ Action Needed',
-    short: '✖ Alert',
+    text: '✖ Not Normal',
+    short: '✖ Not Normal',
     dotColor: '#F87171',
     textColor: 'text-rose-400',
     borderColor: 'border-rose-400/40',
     bgColor: 'bg-rose-500/15',
   },
   'data-quality': {
-    text: '◌ Stale',
-    short: '◌ Stale',
+    text: '◌ Update Needed',
+    short: '◌ Update',
     dotColor: '#A1A1AA',
     textColor: 'text-zinc-400',
     borderColor: 'border-white/20',
@@ -148,57 +148,57 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
           title: 'Bone Density %',
           unit: '%',
           threshold: 95,
-          thresholdLabel: 'Min 95%',
+          thresholdLabel: 'Safe 95%',
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.hipSpineBmdPct,
             secondary: d.femoralNeckBmdPct,
           })),
-          secondaryLabel: 'Thigh',
+          secondaryLabel: 'Femur Neck',
         };
       case 'cardio':
         return {
-          title: 'VO2 Peak',
-          unit: 'ml/kg',
+          title: 'Aerobic Fitness',
+          unit: 'ml/kg/min',
           threshold: env.evaVo2Floor,
           thresholdLabel: `Floor ${env.evaVo2Floor}`,
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.vo2PeakMlKgMin,
           })),
         };
       case 'muscle':
         return {
-          title: 'Strength %',
+          title: 'Muscle Strength %',
           unit: '%',
           threshold: 80,
-          thresholdLabel: 'Min 80%',
+          thresholdLabel: 'Safe 80%',
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.strengthPctBaseline,
             secondary: d.muscleCsaPctBaseline,
           })),
-          secondaryLabel: 'CSA',
+          secondaryLabel: 'Muscle Size %',
         };
       case 'vision-sans':
         return {
           title: 'Eye Pressure',
           unit: 'mmHg',
           threshold: baseline.iopMmHgRange[1],
-          thresholdLabel: `Max ${baseline.iopMmHgRange[1]}`,
+          thresholdLabel: `Limit ${baseline.iopMmHgRange[1]}`,
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.iopMmHg,
           })),
         };
       case 'nutrition-hydration':
         return {
-          title: 'Fluid Balance',
-          unit: 'mL',
+          title: 'Fluid Intake',
+          unit: 'ml',
           threshold: baseline.fluidTargetMl,
-          thresholdLabel: `Goal ${baseline.fluidTargetMl}`,
+          thresholdLabel: `Target ${baseline.fluidTargetMl}`,
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.fluidIntakeMl,
             secondary: d.urineOutputMl,
           })),
@@ -206,12 +206,12 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
         };
       case 'radiation':
         return {
-          title: 'Daily Dose',
+          title: 'Daily Radiation',
           unit: 'mSv',
           threshold: env.radiationAmbientRateMsvDay * 1.4,
           thresholdLabel: 'Elevated',
           data: last7.map((d) => ({
-            label: `Sol ${d.sol}`,
+            label: `Day ${d.sol}`,
             primary: d.dailyDoseMsv,
           })),
         };
@@ -238,7 +238,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
       'vision-sans': latest ? `${latest.iopMmHg} mmHg` : '--',
       radiation: latest ? `${latest.dailyDoseMsv.toFixed(2)} mSv` : '--',
       cardio: latest ? `${latest.restingHrBpm} bpm` : '--',
-      'nutrition-hydration': latest ? `${latest.fluidIntakeMl} mL` : '--',
+      'nutrition-hydration': latest ? `${latest.fluidIntakeMl} ml` : '--',
       bone: latest ? `${latest.hipSpineBmdPct.toFixed(1)}%` : '--',
       muscle: latest ? `${latest.strengthPctBaseline.toFixed(1)}%` : '--',
     }),
@@ -291,7 +291,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
               onClick={onDismissWearableNotice}
               className="text-zinc-300 hover:text-white text-xs font-semibold cursor-pointer"
             >
-              Dismiss
+              Hide
             </button>
           )}
         </div>
@@ -422,6 +422,17 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
                     {param.vsBaseline}
                   </div>
 
+                  <p className="text-xs text-zinc-300 leading-snug">
+                    {param.plainMeaning}
+                  </p>
+
+                  {isFlagged && param.insight.steps[0] && (
+                    <div className="rounded-xl bg-white/[0.04] border border-white/10 px-2.5 py-2 text-xs text-white leading-snug">
+                      <span className="font-semibold text-zinc-300">What to do: </span>
+                      {param.insight.steps[0]}
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => toggleParameterInsight(insightKey)}
@@ -429,7 +440,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
                     aria-controls={insightPanelId}
                     className="w-full pt-2 border-t border-white/10 flex items-center justify-between text-xs font-semibold text-zinc-300 hover:text-white cursor-pointer"
                   >
-                    <span>Insights</span>
+                    <span>{isInsightOpen ? 'Hide Full Guidance' : 'More Guidance'}</span>
                     {isInsightOpen ? (
                       <ChevronUp className="h-3.5 w-3.5" />
                     ) : (
@@ -442,14 +453,11 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
                       id={insightPanelId}
                       className="reveal-panel pt-1 space-y-1.5 text-xs text-zinc-300"
                     >
-                      <p className="text-white font-medium leading-snug">
-                        {param.plainMeaning}
-                      </p>
                       <p className="text-zinc-200 font-medium leading-snug">
                         {param.insight.headline}
                       </p>
                       <ul className="space-y-1 text-zinc-300">
-                        {param.insight.steps.slice(0, 2).map((step, stepIdx) => (
+                        {param.insight.steps.slice(0, 3).map((step, stepIdx) => (
                           <li key={stepIdx} className="leading-snug">
                             • {step}
                           </li>
@@ -465,7 +473,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
                           }
                           className="text-xs font-semibold text-white inline-flex items-center gap-1 pt-0.5 cursor-pointer"
                         >
-                          <span>Take action</span>
+                          <span>Update Reading</span>
                           <ArrowUpRight className="h-3 w-3" />
                         </button>
                       )}
@@ -483,7 +491,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
               onClick={() => setShowMoreDetail((prev) => !prev)}
               className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:text-white cursor-pointer"
             >
-              <span>7-Day Trend &amp; Protocol</span>
+              <span>7-Day Trend &amp; Guide</span>
               {showMoreDetail ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
 
@@ -511,7 +519,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
                 />
                 <div className="glass-3d-sub rounded-xl p-3 space-y-1.5 text-xs text-zinc-300">
                   <div className="font-semibold text-white">
-                    Simple Explanation · {env.shortLabel} ({env.gravityLabel})
+                    System Guide · {env.shortLabel} ({env.gravityLabel})
                   </div>
                   <p className="leading-snug">{knowledge.whyItMatters}</p>
                   <div className="text-zinc-400 pt-1">
@@ -529,7 +537,7 @@ export const HudOverview: React.FC<HudOverviewProps> = ({
               onClick={() => setShowActions((prev) => !prev)}
               className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:text-white cursor-pointer"
             >
-              <span>Daily Actions</span>
+              <span>Daily Checklist</span>
               <span className="flex items-center gap-2 text-xs tabular-nums text-zinc-400">
                 {knowledge.dailyActions.filter((a) => completedActionIds[a.id]).length}/
                 {knowledge.dailyActions.length}

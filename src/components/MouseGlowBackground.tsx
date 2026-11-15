@@ -16,21 +16,21 @@ export const MouseGlowBackground: React.FC = () => {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const applyGradient = (x: number, y: number, intensity = 1) => {
-      const core = (0.95 * intensity).toFixed(3);
-      const mid = (0.58 * intensity).toFixed(3);
-      const outer = (0.22 * intensity).toFixed(3);
+      const core = (0.72 * intensity).toFixed(3);
+      const mid = (0.38 * intensity).toFixed(3);
+      const outer = (0.14 * intensity).toFixed(3);
       el.style.background = [
-        `radial-gradient(520px circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, rgba(2, 71, 85, ${core}) 0%, rgba(2, 71, 85, ${mid}) 34%, rgba(2, 71, 85, ${outer}) 64%, rgba(2, 71, 85, 0) 88%)`,
-        `radial-gradient(240px circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, rgba(14, 116, 138, ${(0.34 * intensity).toFixed(3)}) 0%, rgba(2, 71, 85, 0) 75%)`,
+        `radial-gradient(560px circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, rgba(2, 71, 85, ${core}) 0%, rgba(2, 71, 85, ${mid}) 36%, rgba(2, 71, 85, ${outer}) 66%, rgba(0, 0, 0, 0) 90%)`,
+        `radial-gradient(240px circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, rgba(14, 116, 138, ${(0.28 * intensity).toFixed(3)}) 0%, rgba(0, 0, 0, 0) 76%)`,
       ].join(', ');
     };
 
-    let targetX = window.innerWidth * 0.52;
-    let targetY = window.innerHeight * 0.44;
+    let targetX = window.innerWidth * 0.5;
+    let targetY = window.innerHeight * 0.46;
     let currentX = targetX;
     let currentY = targetY;
-    let targetIntensity = 0.9;
-    let currentIntensity = 0.9;
+    let targetIntensity = 0.92;
+    let currentIntensity = 0.92;
 
     applyGradient(currentX, currentY, currentIntensity);
 

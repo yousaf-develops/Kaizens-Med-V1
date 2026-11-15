@@ -20,11 +20,11 @@ export const AstronautOnboarding: React.FC<AstronautOnboardingProps> = ({
     const trimmedLast = lastName.trim();
 
     if (!trimmedFirst) {
-      setErrorMessage('Please enter your first name to continue.');
+      setErrorMessage('Please enter your first name.');
       return;
     }
     if (!gender) {
-      setErrorMessage('Please select Male or Female to configure your personal baseline.');
+      setErrorMessage('Please select Male or Female.');
       return;
     }
 
@@ -97,10 +97,10 @@ export const AstronautOnboarding: React.FC<AstronautOnboardingProps> = ({
             {/* Card Title & Subtitle */}
             <div className="space-y-1.5">
               <h1 className="font-display text-[26px] sm:text-[28px] font-bold tracking-tight text-white leading-tight">
-                Create Your Account
+                Crew Profile Setup
               </h1>
               <p className="text-sm text-zinc-400">
-                Let&apos;s get you set up for your mission.
+                Enter your name to access your health dashboard.
               </p>
             </div>
 

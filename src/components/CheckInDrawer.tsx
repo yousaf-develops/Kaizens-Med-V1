@@ -102,22 +102,22 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
     const restHrMatch = lower.match(/(?:resting\s*hr|resting\s*heart\s*rate|rhr|pulse)\s*[:=]?\s*(\d{2,3})/);
     if (restHrMatch) {
       setRestingHrBpm(Number(restHrMatch[1]));
-      matched.push(`Rest HR ${restHrMatch[1]}`);
+      matched.push(`HR ${restHrMatch[1]} bpm`);
     } else {
-      const hrMatch = lower.match(/(?:heart rate|hr)\s*[:=]?\s*(\d{2,3})/);
+      const hrMatch = lower.match(/(?:heart rate|hr|beats)\s*[:=]?\s*(\d{2,3})/);
       if (hrMatch) {
         setRestingHrBpm(Number(hrMatch[1]));
-        matched.push(`HR ${hrMatch[1]}`);
+        matched.push(`HR ${hrMatch[1]} bpm`);
       }
     }
 
-    const spo2Match = lower.match(/\b(?:spo2|oxygen|o2)\b\s*[:=]?\s*(\d{2,3})/);
+    const spo2Match = lower.match(/\b(?:spo2|oxygen|o2|blood air|blood oxygen)\b\s*[:=]?\s*(\d{2,3})/);
     if (spo2Match) {
       setSpo2Pct(Number(spo2Match[1]));
-      matched.push(`SpO2 ${spo2Match[1]}%`);
+      matched.push(`Blood Oxygen ${spo2Match[1]}%`);
     }
 
-    const tempMatch = lower.match(/\b(?:temp|temperature)\b\s*[:=]?\s*(\d{2}(?:\.\d+)?)/);
+    const tempMatch = lower.match(/\b(?:temp|temperature|heat)\b\s*[:=]?\s*(\d{2}(?:\.\d+)?)/);
     if (tempMatch) {
       setBodyTempC(Number(tempMatch[1]));
       matched.push(`Temp ${tempMatch[1]}°C`);
@@ -126,36 +126,36 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
     const glucoseMatch = lower.match(/\b(?:glucose|blood\s*sugar|sugar)\b\s*[:=]?\s*(\d{2,3})/);
     if (glucoseMatch) {
       setBloodGlucoseMgDl(Number(glucoseMatch[1]));
-      matched.push(`Glucose ${glucoseMatch[1]}`);
+      matched.push(`Glucose ${glucoseMatch[1]} mg/dL`);
     }
 
-    const fluidMatch = lower.match(/(\d{3,4})\s*(?:ml|milliliters|millilitres)/);
+    const fluidMatch = lower.match(/(\d{3,4})\s*(?:ml|milliliters|millilitres|water|fluid)/);
     if (fluidMatch) {
       setFluidIntakeMl(Number(fluidMatch[1]));
-      matched.push(`Water ${fluidMatch[1]} mL`);
+      matched.push(`Fluid ${fluidMatch[1]} ml`);
     }
 
-    const rpeMatch = lower.match(/rpe\s*(\d{1,2})/);
+    const rpeMatch = lower.match(/(?:rpe|effort|hardness)\s*(\d{1,2})/);
     if (rpeMatch) {
       setRpe(Math.min(10, Math.max(1, Number(rpeMatch[1]))));
-      matched.push(`RPE ${rpeMatch[1]}`);
+      matched.push(`Effort ${rpeMatch[1]}/10`);
     }
 
-    if (lower.includes('ared completed') || lower.includes('ared done')) {
+    if (lower.includes('ared completed') || lower.includes('ared done') || lower.includes('weights done') || lower.includes('training done')) {
       setAredCompleted(true);
-      matched.push('ARED done');
+      matched.push('Resistance training done');
     }
-    if (lower.includes('seated')) setBpPosture('seated');
+    if (lower.includes('seated') || lower.includes('sitting')) setBpPosture('seated');
     if (lower.includes('standing')) setBpPosture('standing');
-    if (lower.includes('supine')) setBpPosture('supine');
-    if (lower.includes('blurred vision')) setBlurredVision(true);
-    if (lower.includes('flank pain') || lower.includes('renal')) setRenalColicSymptoms(true);
-    if (lower.includes('dizziness') || lower.includes('presyncope')) setOrthostaticSymptoms(true);
+    if (lower.includes('supine') || lower.includes('lying down')) setBpPosture('supine');
+    if (lower.includes('blurred vision') || lower.includes('blurry')) setBlurredVision(true);
+    if (lower.includes('flank pain') || lower.includes('renal') || lower.includes('side pain')) setRenalColicSymptoms(true);
+    if (lower.includes('dizziness') || lower.includes('presyncope') || lower.includes('dizzy')) setOrthostaticSymptoms(true);
 
     setVoiceStatusMsg(
       matched.length > 0
         ? `Updated: ${matched.join(' · ')}`
-        : 'No structured metrics detected — edit fields manually below.'
+        : 'No measurements detected — enter your values below.'
     );
   };
 
@@ -173,13 +173,10 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
     const SpeechRec = win.SpeechRecognition || win.webkitSpeechRecognition;
 
     if (!SpeechRec) {
-      // Graceful offline/sandbox fallback: populate sample command or let user type/dictate
-      const sample = 'BP 118 over 76 seated, hydration 2600 ml, ARED completed RPE 6';
+      const sample = '118 over 76 sitting, 2600 water, weights done, hardness 6';
       setVoiceTranscript(sample);
       parseVoiceTranscript(sample);
-      setVoiceStatusMsg(
-        'Web Speech microphone unavailable in this browser; loaded sample voice transcript parser.'
-      );
+      setVoiceStatusMsg('Mic is off here; loaded a sample line for you.');
       return;
     }
 
@@ -196,7 +193,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
     };
     rec.onerror = () => {
       setVoiceActive(false);
-      setVoiceStatusMsg('Microphone permission declined or unavailable; edit transcript manually below.');
+      setVoiceStatusMsg('Mic not ready; type your numbers below.');
     };
     rec.onend = () => {
       setVoiceActive(false);
@@ -204,7 +201,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
 
     recognitionRef.current = rec;
     setVoiceActive(true);
-    setVoiceStatusMsg('Listening for hands-free telemetry (e.g., "BP 118 over 76 seated, 2600 ml")...');
+    setVoiceStatusMsg('Listening... say numbers like "118 over 76 seated, 2600 ml"');
     rec.start();
   };
 
@@ -266,7 +263,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
 
     onSubmitEntry(
       nextEntry,
-      `Sol ${targetSol} ${SYSTEM_KNOWLEDGE[activeTab].shortName}: BP ${bpSystolic}/${bpDiastolic} (${bpPosture}), Fluid ${fluidIntakeMl} mL, ARED ${aredCompleted ? 'done' : 'missed'}.`,
+      `Day ${targetSol} ${SYSTEM_KNOWLEDGE[activeTab].shortName}: BP ${bpSystolic}/${bpDiastolic} mmHg, Fluid ${fluidIntakeMl} ml.`,
       appendAsNewSol
     );
     onClose();
@@ -295,15 +292,15 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <div className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-              {env.label} · Sol {env.currentDay}
+              {env.label} · Day {env.currentDay}
             </div>
             <h2 className="text-xl font-display font-semibold text-white mt-0.5">
-              Log Reading
+              Update Health Check
             </h2>
           </div>
           <button
             onClick={onClose}
-            aria-label="Close check-in drawer"
+            aria-label="Close health check drawer"
             className="p-2 rounded-full btn-mono-glass cursor-pointer"
           >
             <X className="h-4 w-4" />
@@ -314,7 +311,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
         <div className="rounded-2xl glass-3d-sub p-4 space-y-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-sm font-medium text-white">
-              Voice Check-In
+              Voice Entry
             </span>
             <button
               type="button"
@@ -335,7 +332,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
               type="text"
               value={voiceTranscript}
               onChange={(e) => setVoiceTranscript(e.target.value)}
-              placeholder='Say or type: "BP 118 over 76, 2600 ml, ARED done"'
+              placeholder='Speak or type: "118 over 76, 2600 ml"'
               className="flex-1 rounded-xl glass-3d-recessed px-3 py-2 text-sm font-mono text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/35"
             />
             <button
@@ -376,7 +373,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
           >
             <span className="inline-flex items-center gap-1.5">
               <HelpCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-              Simple How-To &amp; Risk Guide ({SYSTEM_KNOWLEDGE[activeTab].shortName})
+              Measurement Guide ({SYSTEM_KNOWLEDGE[activeTab].shortName})
             </span>
             {showSimpleGuide ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
@@ -391,7 +388,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                 ))}
               </ul>
               <p className="text-amber-300 leading-snug">
-                <strong>Why watch this:</strong> {CHECKIN_HOWTO_GUIDES[activeTab].riskSummary}
+                <strong>Why this matters:</strong> {CHECKIN_HOWTO_GUIDES[activeTab].riskSummary}
               </p>
             </div>
           )}
@@ -402,7 +399,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-3 gap-2">
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Systolic (mmHg)</span>
+                  <span className="text-zinc-300 font-medium">Upper BP (Systolic)</span>
                   <input
                     type="number"
                     value={bpSystolic}
@@ -411,7 +408,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Diastolic</span>
+                  <span className="text-zinc-300 font-medium">Lower BP (Diastolic)</span>
                   <input
                     type="number"
                     value={bpDiastolic}
@@ -427,7 +424,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                     className="w-full rounded-xl glass-3d-recessed px-2 py-2.5 text-white focus:outline-none focus:border-white/35"
                   >
                     <option value="seated" className="bg-zinc-900 text-white">Seated</option>
-                    <option value="supine" className="bg-zinc-900 text-white">Supine</option>
+                    <option value="supine" className="bg-zinc-900 text-white">Lying Down</option>
                     <option value="standing" className="bg-zinc-900 text-white">Standing</option>
                   </select>
                 </label>
@@ -443,7 +440,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">SpO2 (%)</span>
+                  <span className="text-zinc-300 font-medium">Blood O2 %</span>
                   <input
                     type="number"
                     value={spo2Pct}
@@ -452,7 +449,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Submax HR</span>
+                  <span className="text-zinc-300 font-medium">Exercise HR</span>
                   <input
                     type="number"
                     value={submaxHrBpm}
@@ -461,7 +458,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">VO2 Peak</span>
+                  <span className="text-zinc-300 font-medium">Aerobic Fit</span>
                   <input
                     type="number"
                     step="0.1"
@@ -478,7 +475,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setOrthostaticSymptoms(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Dizziness, visual dimming, or nausea during upright/LBNP test</span>
+                <span>Dizziness, tunnel vision, or nausea when standing</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -487,7 +484,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setChestOrPresyncope(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Chest discomfort, severe breathlessness, or presyncope</span>
+                <span>Chest discomfort, shortness of breath, or feeling faint</span>
               </label>
             </div>
           )}
@@ -496,7 +493,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Hip / Spine BMD (% baseline)</span>
+                  <span className="text-zinc-300 font-medium">Hip &amp; Spine Density %</span>
                   <input
                     type="number"
                     step="0.1"
@@ -506,7 +503,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Femoral Neck BMD (% baseline)</span>
+                  <span className="text-zinc-300 font-medium">Upper Thigh Bone %</span>
                   <input
                     type="number"
                     step="0.1"
@@ -523,7 +520,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setAredCompleted(e.target.checked)}
                   className="accent-zinc-950"
                 />
-                <span>Prescribed ARED resistance session completed today</span>
+                <span>Completed daily resistance training</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -532,7 +529,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setBonePainSymptom(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Localized bone pain, swelling, or suspected impact injury</span>
+                <span>Localized bone pain, swelling, or impact injury</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -541,7 +538,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setPostLandingSymptoms(e.target.checked)}
                   className="accent-amber-500"
                 />
-                <span>Post-landing imbalance, dizziness, or skeletal pain (Hazard 4.1)</span>
+                <span>Unsteadiness or dizziness after landing</span>
               </label>
             </div>
           )}
@@ -550,7 +547,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-3 gap-2">
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Strength (% base)</span>
+                  <span className="text-zinc-300 font-medium">Strength %</span>
                   <input
                     type="number"
                     step="0.1"
@@ -560,7 +557,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Ultrasound CSA %</span>
+                  <span className="text-zinc-300 font-medium">Thigh Size %</span>
                   <input
                     type="number"
                     step="0.1"
@@ -570,7 +567,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Session RPE (1–10)</span>
+                  <span className="text-zinc-300 font-medium">Effort (1–10)</span>
                   <input
                     type="number"
                     min="1"
@@ -588,7 +585,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setLimitingMusclePain(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>New or persistent pain limiting assigned activity</span>
+                <span>Muscle pain limiting normal tasks</span>
               </label>
             </div>
           )}
@@ -596,7 +593,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
           {activeTab === 'vision-sans' && (
             <div className="space-y-3 text-sm">
               <label className="block space-y-1">
-                <span className="text-zinc-300 font-medium">Intraocular Pressure (IOP mmHg)</span>
+                <span className="text-zinc-300 font-medium">Eye Pressure (mmHg)</span>
                 <input
                   type="number"
                   value={iopMmHg}
@@ -611,7 +608,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setBlurredVision(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>New blurred vision, trouble focusing, or visual distortion</span>
+                <span>Blurred or distorted near vision</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -620,7 +617,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setPersistentHeadache(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Persistent headache (SANS symptom flag)</span>
+                <span>Persistent headache</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -629,7 +626,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setSansCountermeasureDone(e.target.checked)}
                   className="accent-zinc-950"
                 />
-                <span>Completed daily leg-cuff / fluid-shift session</span>
+                <span>Completed daily thigh cuff session</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -638,7 +635,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setOctExamOverdue(e.target.checked)}
                   className="accent-amber-600"
                 />
-                <span>Scheduled OCT / Fundoscopy imaging overdue</span>
+                <span>Scheduled retinal eye scan is overdue</span>
               </label>
             </div>
           )}
@@ -647,7 +644,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Fluid Intake (mL)</span>
+                  <span className="text-zinc-300 font-medium">Fluid Intake (ml)</span>
                   <input
                     type="number"
                     value={fluidIntakeMl}
@@ -656,7 +653,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Urine Output (mL)</span>
+                  <span className="text-zinc-300 font-medium">Urine Output (ml)</span>
                   <input
                     type="number"
                     value={urineOutputMl}
@@ -675,7 +672,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-zinc-300 font-medium">Blood Sugar (mg/dL)</span>
+                  <span className="text-zinc-300 font-medium">Blood Glucose (mg/dL)</span>
                   <input
                     type="number"
                     value={bloodGlucoseMgDl}
@@ -709,7 +706,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setUrineDarkConcentrated(e.target.checked)}
                   className="accent-amber-600"
                 />
-                <span>Urine dark / concentrated today</span>
+                <span>Dark, concentrated urine today</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -718,7 +715,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setNutritionSymptomsFlag(e.target.checked)}
                   className="accent-amber-500"
                 />
-                <span>Appetite loss, poor oral intake, or dry-mouth / fatigue symptoms (Hazard 4.5)</span>
+                <span>Poor appetite, dry mouth, or unusual fatigue</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl border border-rose-400/35 bg-rose-500/12 p-3 cursor-pointer text-rose-100">
                 <input
@@ -727,7 +724,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setRenalColicSymptoms(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Severe flank/back pain, painful urination, or blood in urine (Renal Colic Alert)</span>
+                <span>Sharp side pain, painful urination, or blood in urine</span>
               </label>
             </div>
           )}
@@ -735,7 +732,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
           {activeTab === 'radiation' && (
             <div className="space-y-3 text-sm">
               <label className="block space-y-1">
-                <span className="text-zinc-300 font-medium">Verified Personal Daily Dose (mSv/d)</span>
+                <span className="text-zinc-300 font-medium">Daily Radiation (mSv)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -751,7 +748,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setProdromalNausea(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>Event-linked nausea, vomiting, or appetite loss</span>
+                <span>Nausea or digestive upset</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl glass-3d-recessed p-3 cursor-pointer text-zinc-200 hover:border-white/25">
                 <input
@@ -760,7 +757,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setCommBreakdownFlag(e.target.checked)}
                   className="accent-amber-500"
                 />
-                <span>Crew-ground comm delay friction or out-of-sequence log (Hazard 3)</span>
+                <span>Crew–ground signal delay or out-of-order messages</span>
               </label>
               <label className="flex items-center gap-2 rounded-xl border border-rose-400/35 bg-rose-500/12 p-3 cursor-pointer text-rose-100">
                 <input
@@ -769,7 +766,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                   onChange={(e) => setNeurologicalRedFlag(e.target.checked)}
                   className="accent-rose-600"
                 />
-                <span>New confusion, coordination loss, or collapse (Urgent CNS Escalation)</span>
+                <span>Sudden confusion, loss of balance, or fainting</span>
               </label>
             </div>
           )}
@@ -778,7 +775,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
             <div className="rounded-2xl border border-rose-400/40 bg-rose-500/14 p-3.5 text-sm text-rose-100 flex items-start gap-2.5">
               <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white">Urgent Attention Needed:</strong> Stop strenuous or upright activity, record when symptoms started, and alert crew medical support.
+                <strong className="text-white">Immediate Attention:</strong> Pause heavy activity, rest safely, and contact your flight surgeon.
               </div>
             </div>
           )}
@@ -791,7 +788,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                 onChange={(e) => setAppendAsNewSol(e.target.checked)}
                 className="accent-emerald-500"
               />
-              <span>Log as next day (Sol {latest.sol + 1}) on chart</span>
+              <span>Log as next day (Day {latest.sol + 1})</span>
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -805,7 +802,7 @@ export const CheckInDrawer: React.FC<CheckInDrawerProps> = ({
                 type="submit"
                 className="px-5 py-2.5 rounded-full btn-mono-primary font-semibold text-sm transition-all cursor-pointer"
               >
-                Save (+40 XP)
+                Save Check (+40 pts)
               </button>
             </div>
           </div>

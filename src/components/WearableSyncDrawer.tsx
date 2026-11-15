@@ -60,7 +60,7 @@ const VERDICT_STYLE: Record<
   },
   'not-normal': {
     badge: 'text-rose-400',
-    label: '✖ Alert',
+    label: '✖ Not Normal',
     rowBorder: 'border-rose-400/40',
   },
 };
@@ -137,10 +137,10 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
       const parsed = parseWearableFileOrText(text, file.name);
       if (parsed) {
         setDraftReading(parsed);
-        setStatusMessage(`Imported readings from ${file.name} and compared against your baseline.`);
+        setStatusMessage(`Loaded numbers from ${file.name} and checked them.`);
       } else {
         setStatusMessage(
-          `Could not detect vital columns in ${file.name}. Try CSV/JSON with headers like hr, spo2, temp, glucose, bp_sys, bp_dia.`
+          `Could not find health numbers in ${file.name}. Use a file with heart, air, heat, sugar, or water.`
         );
       }
     };
@@ -148,13 +148,13 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
   };
 
   const handleParseText = () => {
-    const parsed = parseWearableFileOrText(pasteText, 'Pasted Wearable Data');
+    const parsed = parseWearableFileOrText(pasteText, 'Typed Watch Data');
     if (parsed) {
       setDraftReading(parsed);
-      setStatusMessage('Parsed wearable text and compared against baseline.');
+      setStatusMessage('Read your watch text and checked your numbers.');
     } else {
       setStatusMessage(
-        'No readable vitals found. Try e.g. "HR: 84, SpO2: 96%, Temp: 37.8C, Glucose: 105, BP: 128/82".'
+        'Could not read numbers. Try: "HR: 84, SpO2: 96%, Temp: 37.8C, Glucose: 105, BP: 128/82".'
       );
     }
   };
@@ -208,16 +208,16 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-              <Watch className="h-4 w-4 text-white" /> Universal Wearable Sync & Baseline Check
+              <Watch className="h-4 w-4 text-white" /> Wearable &amp; Baseline Check
             </div>
             <h2 className="text-2xl font-display font-bold text-white mt-0.5">
-              Connect Any Wearable Device
+              Sync Crew Wearable
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close wearable sync"
+            aria-label="Close wearable panel"
             className="p-2 rounded-full btn-mono-glass cursor-pointer"
           >
             <X className="h-5 w-5" />
@@ -228,9 +228,9 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-2xl glass-3d-recessed p-1.5">
           {(
             [
-              { id: 'bluetooth', label: 'Bluetooth BLE', icon: Bluetooth },
-              { id: 'import', label: 'Import / Devices', icon: FileUp },
-              { id: 'manual', label: 'Type Readings', icon: Activity },
+              { id: 'bluetooth', label: 'Live Watch', icon: Bluetooth },
+              { id: 'import', label: 'Presets / File', icon: FileUp },
+              { id: 'manual', label: 'Manual Entry', icon: Activity },
               { id: 'baseline', label: 'My Baseline', icon: SlidersHorizontal },
             ] as const
           ).map((tab) => {
@@ -254,18 +254,17 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
           })}
         </div>
 
-        {/* Mode: Live Web Bluetooth GATT */}
+        {/* Mode: Live Web Bluetooth */}
         {mode === 'bluetooth' && (
           <div className="reveal-panel space-y-4">
             <div className="rounded-2xl glass-3d-sub p-5 space-y-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="text-base font-semibold text-white">
-                    Real-Time Bluetooth Low Energy (BLE) Wearable Pairing
+                    Live Bluetooth Sensor Link
                   </h3>
                   <p className="text-sm text-zinc-300 mt-0.5">
-                    Streams Heart Rate (0x180D + RR-Interval HRV), Pulse Oximeter (0x1822),
-                    Thermometer (0x1809), Blood Pressure (0x1810), Glucose (0x1808) & Battery.
+                    Streams live heart rate, blood oxygen, temperature, and blood pressure from your watch.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -275,7 +274,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                       onClick={() => ble.reconnectLastDevice()}
                       className="px-4 py-2 rounded-full btn-mono-glass text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                     >
-                      <RefreshCw className="h-4 w-4" /> Reconnect
+                      <RefreshCw className="h-4 w-4" /> Link Again
                     </button>
                   )}
                   {isBleStreaming ? (
@@ -284,7 +283,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                       onClick={() => ble.disconnect()}
                       className="px-4 py-2 rounded-full border border-rose-400/45 bg-rose-500/15 text-rose-200 hover:bg-rose-500/25 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                     >
-                      <Unplug className="h-4 w-4" /> Disconnect
+                      <Unplug className="h-4 w-4" /> Unlink
                     </button>
                   ) : (
                     <button
@@ -294,7 +293,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                       className="px-5 py-2.5 rounded-full btn-mono-primary font-semibold text-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       <Bluetooth className="h-4 w-4" />
-                      {ble.status === 'connecting' ? 'Scanning BLE...' : 'Pair Bluetooth Device'}
+                      {ble.status === 'connecting' ? 'Looking...' : 'Link My Watch'}
                     </button>
                   )}
                 </div>
@@ -303,7 +302,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
               {/* Scan Mode Selector */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
                 <div className="flex items-center gap-2 text-xs font-medium text-zinc-300">
-                  <span>Scan Filter:</span>
+                  <span>Find:</span>
                   <div className="glass-3d-recessed inline-flex rounded-lg p-0.5">
                     <button
                       type="button"
@@ -314,7 +313,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                           : 'text-zinc-300 hover:text-white'
                       }`}
                     >
-                      Health Wearables (0x180D/1822)
+                      Health Watches
                     </button>
                     <button
                       type="button"
@@ -325,7 +324,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                           : 'text-zinc-300 hover:text-white'
                       }`}
                     >
-                      All Nearby BLE Devices
+                      All Nearby
                     </button>
                   </div>
                 </div>
@@ -337,7 +336,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                     onChange={(e) => ble.setAutoSyncToHud(e.target.checked)}
                     className="h-4 w-4 rounded accent-zinc-950"
                   />
-                  Auto-Sync Live Stream to Body HUD
+                  Send live watch telemetry to Body Scan
                 </label>
               </div>
 
@@ -346,12 +345,12 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 <div className="rounded-xl border border-amber-400/35 bg-amber-500/12 p-3.5 text-xs text-amber-100 space-y-2">
                   <div className="font-semibold text-amber-300">
                     {!ble.envCheck.supported
-                      ? 'Web Bluetooth Requires Google Chrome or Microsoft Edge'
-                      : 'Embedded Preview Frame Detected'}
+                      ? 'Use Chrome or Edge to Link a Watch'
+                      : 'Open Full Window for Bluetooth Pairing'}
                   </div>
                   <p className="text-amber-100/90 leading-relaxed">
                     {ble.envCheck.inIframe
-                      ? 'Embedded iframes may block browser Bluetooth prompts. Open in a standalone Chrome/Edge tab or use Live GATT Loopback below.'
+                      ? 'Embedded frames may restrict direct Bluetooth pairing. Open in a full tab or test with the simulated stream below.'
                       : ble.envCheck.reason || ble.statusMessage}
                   </p>
                   {typeof window !== 'undefined' && ble.envCheck.inIframe && (
@@ -361,7 +360,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 font-semibold text-white underline underline-offset-4"
                     >
-                      <ExternalLink className="h-3.5 w-3.5" /> Open in Standalone Chrome/Edge Tab
+                      <ExternalLink className="h-3.5 w-3.5" /> Open Full Window
                     </a>
                   )}
                 </div>
@@ -390,7 +389,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                       <div className="text-sm font-bold text-emerald-300 flex items-center gap-1.5">
                         <Radio className="h-4 w-4" />
                         <span>
-                          {ble.status === 'simulated' ? 'Live GATT Loopback:' : 'Connected:'}{' '}
+                          {ble.status === 'simulated' ? 'Simulated Watch:' : 'Connected:'}{' '}
                           {ble.deviceInfo.name}
                         </span>
                       </div>
@@ -415,8 +414,8 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                             >
                               · Contact:{' '}
                               {ble.snapshot.sensorContact === 'detected'
-                                ? 'Skin Detected'
-                                : 'Check Strap'}
+                                ? 'Good'
+                                : 'Adjust Band'}
                             </span>
                           )}
                       </div>
@@ -424,7 +423,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
 
                     <div className="text-right">
                       <div className="text-xs font-mono text-zinc-400 tabular-nums">
-                        {ble.snapshot.packetCount} GATT packets
+                        {ble.snapshot.packetCount} packets
                       </div>
                       <div className="text-xs text-zinc-300 mt-0.5">
                         {ble.deviceInfo.supportedServices.join(' · ')}
@@ -435,28 +434,27 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                   {/* Live Decoded Vitals Strip */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <div className="rounded-xl glass-3d-recessed p-3">
-                      <div className="text-xs sm:text-sm text-zinc-400">Live Heart Rate</div>
+                      <div className="text-xs sm:text-sm text-zinc-400">Heart Rate</div>
                       <div className="text-2xl sm:text-3xl font-bold tabular-nums text-white mt-0.5">
                         {ble.snapshot.bpm ?? '--'}{' '}
                         <span className="text-sm font-medium text-zinc-400">bpm</span>
                       </div>
                     </div>
                     <div className="rounded-xl glass-3d-recessed p-3">
-                      <div className="text-xs sm:text-sm text-zinc-400">HRV (RMSSD)</div>
+                      <div className="text-xs sm:text-sm text-zinc-400">Heart Recovery</div>
                       <div className="text-2xl sm:text-3xl font-bold tabular-nums text-white mt-0.5">
-                        {ble.snapshot.hrvMs ?? '--'}{' '}
-                        <span className="text-sm font-medium text-zinc-400">ms</span>
+                        {ble.snapshot.hrvMs ?? '--'}
                       </div>
                     </div>
                     <div className="rounded-xl glass-3d-recessed p-3">
-                      <div className="text-xs sm:text-sm text-zinc-400">SpO2 (0x2A5F)</div>
+                      <div className="text-xs sm:text-sm text-zinc-400">Blood Oxygen</div>
                       <div className="text-2xl sm:text-3xl font-bold tabular-nums text-white mt-0.5">
                         {ble.snapshot.spo2Pct ?? '--'}
                         <span className="text-sm font-medium text-zinc-400">%</span>
                       </div>
                     </div>
                     <div className="rounded-xl glass-3d-recessed p-3">
-                      <div className="text-xs sm:text-sm text-zinc-400">Body Temp (0x2A1C)</div>
+                      <div className="text-xs sm:text-sm text-zinc-400">Body Temp</div>
                       <div className="text-2xl sm:text-3xl font-bold tabular-nums text-white mt-0.5">
                         {ble.snapshot.bodyTempC !== undefined
                           ? `${ble.snapshot.bodyTempC.toFixed(1)}°C`
@@ -469,9 +467,9 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                   {bpmSeries.length > 1 && (
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs text-zinc-400">
-                        <span>Live 0x2A37 Pulse Stream</span>
+                        <span>Live Pulse Trend</span>
                         <span className="tabular-nums">
-                          {minBpm}–{maxBpm} bpm window
+                          {minBpm}–{maxBpm} bpm
                         </span>
                       </div>
                       <div className="flex items-end gap-1 h-10 glass-3d-recessed rounded-xl px-2.5 py-1.5">
@@ -496,15 +494,15 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 </div>
               )}
 
-              {/* Built-In Binary GATT Packet Loopback Tester */}
+              {/* Built-In Test Watch */}
               <div className="rounded-xl glass-3d-recessed p-4 space-y-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="text-sm font-semibold text-white">
-                      Test Bluetooth Binary GATT Decoder (No Strap Required)
+                      Simulated Wearable Stream (No Watch Required)
                     </div>
                     <p className="text-xs text-zinc-400">
-                      Generates real IEEE-11073 / SIG binary packets (0x2A37 HR + RR intervals, 0x2A5F SpO2, 0x2A1C Temp) through the live BLE parser.
+                      Preview live heart rate, oxygen, and temperature streams without hardware connected.
                     </p>
                   </div>
                 </div>
@@ -514,14 +512,14 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                     onClick={() => ble.startSimulatedGattStream('normal')}
                     className="px-3.5 py-2 rounded-xl btn-mono-glass text-xs font-semibold cursor-pointer"
                   >
-                    Stream Normal BLE GATT
+                    Simulate Normal Readings
                   </button>
                   <button
                     type="button"
                     onClick={() => ble.startSimulatedGattStream('drift')}
                     className="px-3.5 py-2 rounded-xl btn-mono-glass text-xs font-semibold cursor-pointer"
                   >
-                    Stream Stress Drift BLE
+                    Simulate Fatigue Drift
                   </button>
                 </div>
               </div>
@@ -535,9 +533,9 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
             <div className="rounded-2xl glass-3d-sub p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-base font-semibold text-white">
-                  1-Click Wearable Device Streams
+                  Sample Wearable Profiles
                 </span>
-                <span className="text-xs text-zinc-400">Test live baseline comparison</span>
+                <span className="text-xs text-zinc-400">Preview against your baseline</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {WEARABLE_PRESETS.map((preset) => {
@@ -551,7 +549,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                           ...preset.payload,
                           capturedAtISO: new Date().toISOString(),
                         });
-                        setStatusMessage(`Loaded live stream from ${preset.deviceName}.`);
+                        setStatusMessage(`Loaded readings from ${preset.deviceName}.`);
                       }}
                       className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                         selected
@@ -582,7 +580,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
             <div className="rounded-2xl glass-3d-sub p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-base font-semibold text-white">
-                  Upload Export File (Apple Watch, Garmin, Fitbit, Oura, CSV/JSON/XML)
+                  Import Exported Health File
                 </div>
                 <button
                   type="button"
@@ -590,22 +588,22 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                     const sample =
                       'HR: 81, SpO2: 94%, Temp: 37.8C, Glucose: 66, BP: 136/86, Sleep: 5.8, Water: 1850';
                     setPasteText(sample);
-                    const parsed = parseWearableFileOrText(sample, 'Sample Wearable Export');
+                    const parsed = parseWearableFileOrText(sample, 'Sample Export');
                     if (parsed) {
                       setDraftReading(parsed);
                       setStatusMessage(
-                        'Parsed sample wearable export and compared against baseline.'
+                        'Parsed sample values and compared them against your baseline.'
                       );
                     }
                   }}
                   className="text-xs font-semibold text-zinc-300 hover:text-white underline underline-offset-4 cursor-pointer"
                 >
-                  Try Sample Text
+                  Load Sample
                 </button>
               </div>
               <label className="flex items-center justify-center gap-2 rounded-full btn-mono-primary font-semibold text-sm py-2.5 px-4 cursor-pointer transition-all">
                 <FileUp className="h-4 w-4" />
-                <span>Choose CSV / JSON / XML / TXT File</span>
+                <span>Choose File (.csv, .json, .xml, .txt)</span>
                 <input
                   type="file"
                   accept=".csv,.json,.xml,.txt"
@@ -619,7 +617,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                   type="text"
                   value={pasteText}
                   onChange={(e) => setPasteText(e.target.value)}
-                  placeholder='Or paste raw reading: "HR: 86, SpO2: 93%, Temp: 37.9C, Glucose: 64"'
+                  placeholder='Paste readings: "HR: 86, SpO2: 96%, Temp: 37.9"'
                   className="flex-1 rounded-xl glass-3d-recessed px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/35"
                 />
                 <button
@@ -627,7 +625,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                   onClick={handleParseText}
                   className="px-4 py-2 rounded-xl btn-mono-glass text-sm font-semibold cursor-pointer"
                 >
-                  Read
+                  Parse
                 </button>
               </div>
             </div>
@@ -638,7 +636,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
         {mode === 'manual' && (
           <div className="rounded-2xl glass-3d-sub p-4 space-y-3">
             <div className="text-base font-semibold text-white">
-              Enter Current Wearable Vitals
+              Enter Wearable Measurements
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
               <label className="space-y-1">
@@ -651,7 +649,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">SpO2 (%)</span>
+                <span className="text-zinc-300 font-medium">Blood Oxygen (%)</span>
                 <input
                   type="number"
                   value={draftReading.spo2Pct ?? ''}
@@ -670,7 +668,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Blood Sugar (mg/dL)</span>
+                <span className="text-zinc-300 font-medium">Blood Glucose</span>
                 <input
                   type="number"
                   value={draftReading.bloodGlucoseMgDl ?? ''}
@@ -679,7 +677,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">BP Systolic</span>
+                <span className="text-zinc-300 font-medium">Upper BP (mmHg)</span>
                 <input
                   type="number"
                   value={draftReading.bpSystolic ?? ''}
@@ -688,7 +686,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">BP Diastolic</span>
+                <span className="text-zinc-300 font-medium">Lower BP (mmHg)</span>
                 <input
                   type="number"
                   value={draftReading.bpDiastolic ?? ''}
@@ -697,7 +695,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">HRV (ms)</span>
+                <span className="text-zinc-300 font-medium">Heart Recovery (ms)</span>
                 <input
                   type="number"
                   value={draftReading.hrvMs ?? ''}
@@ -716,7 +714,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Water Drunk (mL)</span>
+                <span className="text-zinc-300 font-medium">Fluid Intake (ml)</span>
                 <input
                   type="number"
                   value={draftReading.fluidIntakeMl ?? ''}
@@ -736,17 +734,17 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
           >
             <div className="flex items-center justify-between">
               <div className="text-base font-semibold text-white">
-                Astronaut Personal Normal Ranges
+                Personal Healthy Baseline
               </div>
               {baselineSavedToast && (
                 <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4" /> Baseline Saved
+                  <CheckCircle2 className="h-4 w-4" /> Saved
                 </span>
               )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Rest HR Min</span>
+                <span className="text-zinc-300 font-medium">Min Resting HR</span>
                 <input
                   type="number"
                   value={editBaseline.restingHrRange[0]}
@@ -763,7 +761,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Rest HR Max</span>
+                <span className="text-zinc-300 font-medium">Max Resting HR</span>
                 <input
                   type="number"
                   value={editBaseline.restingHrRange[1]}
@@ -780,7 +778,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Min SpO2 (%)</span>
+                <span className="text-zinc-300 font-medium">Min Blood O2 (%)</span>
                 <input
                   type="number"
                   value={editBaseline.spo2MinPct}
@@ -791,7 +789,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Min HRV (ms)</span>
+                <span className="text-zinc-300 font-medium">Min Heart Recovery</span>
                 <input
                   type="number"
                   value={editBaseline.hrvMinMs}
@@ -802,7 +800,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Sleep Goal (hrs)</span>
+                <span className="text-zinc-300 font-medium">Sleep Target (hrs)</span>
                 <input
                   type="number"
                   step="0.5"
@@ -817,7 +815,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-zinc-300 font-medium">Fluid Goal (mL)</span>
+                <span className="text-zinc-300 font-medium">Fluid Target (ml)</span>
                 <input
                   type="number"
                   value={editBaseline.fluidTargetMl}
@@ -836,7 +834,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 type="submit"
                 className="px-5 py-2.5 rounded-full btn-mono-primary font-semibold text-sm cursor-pointer"
               >
-                Save My Personal Baseline
+                Save Baseline
               </button>
               <button
                 type="button"
@@ -848,7 +846,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                 }}
                 className="px-4 py-2.5 rounded-full btn-mono-glass text-sm font-medium cursor-pointer"
               >
-                Reset to Defaults
+                Reset
               </button>
             </div>
           </form>
@@ -860,12 +858,12 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
           </div>
         )}
 
-        {/* INSTANT BASELINE COMPARISON RESULTS ("WHAT IS NORMAL vs NOT NORMAL") */}
+        {/* INSTANT BASELINE COMPARISON RESULTS */}
         <section className="rounded-2xl glass-3d-sub p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
             <div>
               <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-                Live Baseline Comparison · {comparison.deviceName}
+                Baseline Comparison · {comparison.deviceName}
               </div>
               <div className="text-base font-bold text-white mt-0.5">
                 {comparison.summaryText}
@@ -893,7 +891,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
                   <div className="space-y-0.5">
                     <div className="text-sm font-semibold text-white">{item.label}</div>
                     <div className="text-xs text-zinc-400">
-                      Normal Baseline:{' '}
+                      Normal:{' '}
                       <span className="tabular-nums font-medium text-zinc-200">
                         {item.baselineDisplay}
                       </span>
@@ -932,7 +930,7 @@ export const WearableSyncDrawer: React.FC<WearableSyncDrawerProps> = ({
             onClick={handleApplyToHud}
             className="px-6 py-2.5 rounded-full btn-mono-primary font-semibold text-sm transition-all cursor-pointer"
           >
-            Apply Wearable Readings to Body HUD
+            Save Wearable Readings
           </button>
         </div>
       </div>

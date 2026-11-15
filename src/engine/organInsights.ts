@@ -47,28 +47,28 @@ export function getOrganParametersWithInsights(
         {
           id: 'hip-spine-bmd',
           systemId: 'bone',
-          label: 'Hip & Spine Strength',
+          label: 'Hip & Spine Density',
           reading: `${latest.hipSpineBmdPct.toFixed(1)}%`,
-          vsBaseline: `Baseline: >= 95% (${(latest.hipSpineBmdPct - 95).toFixed(1)}%)`,
+          vsBaseline: `Target: 95%+ (${(latest.hipSpineBmdPct - 95).toFixed(1)}%)`,
           plainMeaning: hipFlagged
-            ? 'Below normal limit — needs heavy resistance loading.'
-            : 'Normal bone strength for heavy tasks.',
+            ? 'Below safe limit — prioritize resistance training and notify flight surgeon.'
+            : 'Bone density is within the normal range.',
           severity: hipFlagged ? 'urgent' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.1 · Gravity Fields (NASA-STD-3001 V1 4027)',
+            guideline: 'Flight Rule · Bone Health',
             headline: hipFlagged
-              ? 'Step-by-step plan to rebuild hip & spine strength'
-              : 'Steps to keep hip & spine bones above the 95% floor',
+              ? 'Actions to protect hip and spine density'
+              : 'Maintaining hip and spine strength',
             steps: hipFlagged
               ? [
-                  'Complete full heavy squats and deadlifts on ARED today to restore mechanical load.',
-                  'Avoid unapproved sudden twisting until ASCR/medical review confirms safe load.',
-                  'Log any new bone pain or post-landing dizziness; ASCR determines high-load clearance.',
+                  'Complete scheduled squats and deadlifts on the resistance machine today.',
+                  'Avoid sudden heavy twists until cleared by the flight surgeon.',
+                  'Report any bone soreness or post-landing unsteadiness immediately.',
                 ]
               : [
-                  'Keep weighted squats and deadlifts on ARED consistent to simulate gravity load.',
-                  'Maintain full target resistance rather than dropping weight on busy sols.',
-                  'Log any localized bone pain right away for medical review.',
+                  'Continue weighted squats and lifts on schedule.',
+                  'Maintain full resistance loads across the week.',
+                  'Report any localized bone pain early.',
                 ],
           },
         },
@@ -77,52 +77,55 @@ export function getOrganParametersWithInsights(
           systemId: 'bone',
           label: 'Upper Thigh Bone',
           reading: `${latest.femoralNeckBmdPct.toFixed(1)}%`,
-          vsBaseline: 'Baseline: >= 90%',
-          plainMeaning: 'Near the 90% floor — never skip ARED squats.',
+          vsBaseline: 'Target: 90%+',
+          plainMeaning:
+            neckFlagged || neckWatch
+              ? 'Near lower limit — complete all lower-body strength sets.'
+              : 'Upper leg bone density is stable.',
           severity: neckFlagged ? 'urgent' : neckWatch ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.1 · Femoral-Neck Floor (V1 4027)',
+            guideline: 'Flight Rule · Leg Bone Density',
             headline:
               neckFlagged || neckWatch
-                ? 'Step-by-step plan to protect your upper thigh bone'
-                : 'Steps to maintain safe thigh-bone density',
+                ? 'Actions to support upper leg bone'
+                : 'Maintaining leg bone resilience',
             steps:
               neckFlagged || neckWatch
                 ? [
-                    'Prioritize ARED leg presses, squats, and heel raises—these directly load the femoral neck.',
-                    'Maintain daily 1,200 mg calcium and 1,000 IU Vitamin D.',
-                    'Keep sodium below 2,300 mg to reduce urinary calcium loss.',
+                    'Include leg presses, squats, and heel raises in today’s session.',
+                    'Take your daily calcium and vitamin D supplements.',
+                    'Keep sodium intake low to reduce calcium loss.',
                   ]
                 : [
-                    'Include full range-of-motion leg presses and heel raises in lower-body sessions.',
-                    'Keep protein, calcium, and Vitamin D steady for bone turnover.',
-                    'Stay current on scheduled DXA follow-up and post-landing readaptation checks.',
+                    'Keep full leg presses and heel raises in your training plan.',
+                    'Meet daily protein and calcium targets.',
+                    'Complete scheduled bone density checks on time.',
                   ],
           },
         },
         {
           id: 'weekly-ared',
           systemId: 'bone',
-          label: 'Weekly Weight Training',
+          label: 'Resistance Training',
           reading: `${aredDays} / 7 days`,
-          vsBaseline: 'Target: 6+ days / week',
-          plainMeaning: 'Resistance workouts push minerals back into bones.',
+          vsBaseline: 'Target: 6 days per week',
+          plainMeaning: 'Regular strength workouts preserve bone density in low gravity.',
           severity: aredFlagged ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.1 · Resistance Adherence (Proposed Trigger)',
+            guideline: 'Flight Rule · Strength Routine',
             headline: aredFlagged
-              ? 'Step-by-step plan to catch up on weight training'
-              : 'Steps to keep your weekly lifting streak strong',
+              ? 'Actions to catch up on resistance training'
+              : 'Staying consistent with strength workouts',
             steps: aredFlagged
               ? [
-                  'Protect a 45-minute ARED slot today so 2+ missed sessions do not stack.',
-                  'Note: exercise completion alone does not prove bone is protected without DXA follow-up.',
-                  'Log completed sets or equipment reasons right away for ASCR review.',
+                  'Schedule a full resistance training session today.',
+                  'Ensure routine bone density scans are up to date.',
+                  'Note any fatigue or equipment issues in your log.',
                 ]
               : [
-                  'Aim for 6 resistance sessions per 7 sols with one recovery sol.',
-                  'Hydrate 400–500 mL before lifting.',
-                  'Log workout modifications promptly if fatigue or strain appears.',
+                  'Complete 6 resistance workouts every 7 days.',
+                  'Drink 500 ml of water before lifting.',
+                  'Log unusual soreness after heavy sessions.',
                 ],
           },
         },
@@ -131,17 +134,17 @@ export function getOrganParametersWithInsights(
           systemId: 'bone',
           label: 'Vitamin D & Calcium',
           reading: `${latest.vitaminDIu} IU`,
-          vsBaseline: `Target: 1,000 IU · ${latest.calciumMg} mg Ca`,
-          plainMeaning: 'Replaces missing UVB light inside the spacecraft.',
+          vsBaseline: `Target: 1,000 IU · ${latest.calciumMg} mg calcium`,
+          plainMeaning: 'Replaces sunlight exposure lost indoors.',
           severity:
             latest.vitaminDIu < 800 || latest.calciumMg < 1000 ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.1 & 4.5 · Bone Mineral Nutrition',
-            headline: 'Steps to keep Vitamin D & calcium working for your bones',
+            guideline: 'Flight Rule · Bone Nutrition',
+            headline: 'Supporting bone mineral absorption',
             steps: [
-              'Take daily 1,000 IU Vitamin D with a meal—spacecraft cabins block natural UVB sunlight.',
-              'Spread ~1,200 mg calcium across meals for steady absorption.',
-              'Stay well hydrated so calcium cleared through urine stays diluted.',
+              'Take vitamin D daily with a meal.',
+              'Include calcium-rich foods across your meals.',
+              'Maintain steady daily hydration.',
             ],
           },
         },
@@ -179,52 +182,52 @@ export function getOrganParametersWithInsights(
           reading: `${latest.restingHrBpm} bpm`,
           vsBaseline: `Normal: ${baseline.restingHrRange[0]}–${baseline.restingHrRange[1]} bpm`,
           plainMeaning: restOutside
-            ? 'Outside your resting baseline — hydrate and rest.'
-            : 'Normal resting heart rate for you.',
+            ? 'Outside your normal range — hydrate and re-check while seated.'
+            : 'Resting heart rate is within your normal range.',
           severity: restUrgent ? 'urgent' : restOutside ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.2 · Cardiovascular & Bio-Monitor Baseline',
+            guideline: 'Flight Rule · Heart Rate',
             headline: restOutside
-              ? 'Step-by-step plan to settle your resting heart rate'
-              : 'Steps to keep your resting pulse steady',
+              ? 'Actions to stabilize resting heart rate'
+              : 'Maintaining steady heart function',
             steps: restOutside
               ? [
-                  'Rest quietly 10 minutes, hydrate 500 mL, and check Hazard 2 stress or sleep debt.',
-                  'Check Hazard 5 Cabin Environment CO2 and temperature telemetry.',
-                  'Re-measure pulse calmly before demanding work; ASCR determines EVA clearance.',
+                  'Rest calmly for 10 minutes and drink 500 ml of water.',
+                  'Check cabin temperature and CO2 levels.',
+                  'Re-check pulse before starting heavy exertion.',
                 ]
               : [
-                  'Keep steady daily fluid intake so blood volume supports cardiac filling.',
-                  'Protect your 8-hour sleep block—poor sleep raises morning resting HR.',
-                  'Capture pulse in the same resting posture for clean multi-sol trends.',
+                  'Hydrate consistently throughout your shift.',
+                  'Protect 8 hours of uninterrupted sleep.',
+                  'Measure resting pulse in the same relaxed posture.',
                 ],
           },
         },
         {
           id: 'spo2',
           systemId: 'cardio',
-          label: 'Blood Oxygen (SpO2)',
+          label: 'Blood Oxygen',
           reading: `${spo2Val}%`,
-          vsBaseline: `Normal: >= ${baseline.spo2MinPct}%`,
+          vsBaseline: `Normal: ${baseline.spo2MinPct}%+`,
           plainMeaning: spo2Low
-            ? 'Below safe oxygen floor — verify sensor & cabin O2.'
-            : 'Healthy oxygen delivery.',
+            ? 'Below normal — check watch fit and inspect cabin oxygen.'
+            : 'Blood oxygen level is normal.',
           severity: spo2Val < 92 ? 'urgent' : spo2Low ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.2 & 5.1 · Oxygenation & Cabin Air',
+            guideline: 'Flight Rule · Oxygen Saturation',
             headline: spo2Low
-              ? 'Step-by-step plan to verify and restore blood oxygen'
-              : 'Steps to maintain healthy blood oxygen',
+              ? 'Actions for low blood oxygen'
+              : 'Maintaining healthy blood oxygen',
             steps: spo2Low
               ? [
-                  'Re-seat the Bio-Monitor / pulse-ox sensor snugly and hold still 30 seconds.',
-                  'Check Environment tab (Hazard 5.1) for cabin O2, pressure, and CO2 levels.',
-                  'If persistently below 95% (or < 92%), stop physical tasks and escalate urgently.',
+                  'Snug the wrist sensor and hold still for 30 seconds.',
+                  'Open Cabin & Suits to inspect cabin oxygen and CO2.',
+                  'Stop strenuous work and contact the flight surgeon if it stays low.',
                 ]
               : [
-                  'Monitor Hazard 5.1 cabin air circulation during sleep and workouts.',
-                  'Keep Bio-Monitor sensor contact clean for continuous tracking.',
-                  'Report any shortness of breath promptly during EVA or inside cabin.',
+                  'Verify cabin ventilation before sleep and workouts.',
+                  'Keep optical wearable sensors clean.',
+                  'Report any shortness of breath immediately.',
                 ],
           },
         },
@@ -232,71 +235,76 @@ export function getOrganParametersWithInsights(
           id: 'blood-pressure',
           systemId: 'cardio',
           label: 'Blood Pressure',
-          reading: `${latest.bpSystolic}/${latest.bpDiastolic}`,
+          reading: `${latest.bpSystolic}/${latest.bpDiastolic} mmHg`,
           vsBaseline: `Normal: ${baseline.systolicRange[0]}–${baseline.systolicRange[1]} / ${baseline.diastolicRange[0]}–${baseline.diastolicRange[1]}`,
-          plainMeaning: `Measured while ${latest.bpPosture}.`,
+          plainMeaning:
+            bpUrgent || bpWatch
+              ? `Measured ${latest.bpPosture} — sit calmly and re-test.`
+              : `Normal reading measured while ${latest.bpPosture}.`,
           severity: bpUrgent ? 'urgent' : bpWatch ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.2 · BP & Orthostatic Safety',
+            guideline: 'Flight Rule · Blood Pressure',
             headline:
               bpUrgent || bpWatch
-                ? 'Step-by-step plan to stabilize blood pressure'
-                : 'Steps to keep blood pressure steady in space',
+                ? 'Actions to verify blood pressure'
+                : 'Best practices for blood pressure',
             steps:
               bpUrgent || bpWatch
                 ? [
-                    'Stop standing or LBNP testing immediately if dizzy, dimming, or experiencing chest discomfort.',
-                    'Rest 5 minutes with cuff at heart height, repeat, and record posture & timing.',
-                    'Escalate symptomatic or persistent readings to Flight Surgeon.',
+                    'Sit or lie down immediately if you feel dizzy or lightheaded.',
+                    'Rest 5 minutes with the cuff at heart height and re-measure.',
+                    'Notify the flight surgeon if readings remain out of range.',
                   ]
                 : [
-                    'Take BP in the same calm posture with cuff level at the heart.',
-                    'Hydrate before upright stand/tilt or LBNP protocols.',
-                    'Log orthostatic HR changes after landing or fluid-shift protocols.',
+                    'Keep the arm cuff level with your heart during checks.',
+                    'Hydrate before standing blood pressure assessments.',
+                    'Always log your body posture alongside the reading.',
                   ],
           },
         },
         {
           id: 'submax-vo2',
           systemId: 'cardio',
-          label: 'Workout HR & VO2',
+          label: 'Exercise Heart Rate',
           reading: `${latest.submaxHrBpm} bpm`,
-          vsBaseline: `Base ~${baseline.submaxHrBpm} (${hrDrift >= 0 ? '+' : ''}${hrDrift}) · VO2 ${vo2Pct.toFixed(0)}%`,
+          vsBaseline: `Baseline ~${baseline.submaxHrBpm} (${hrDrift >= 0 ? '+' : ''}${hrDrift}) · Fitness ${vo2Pct.toFixed(0)}%`,
           plainMeaning:
-            hrDrift >= 8
-              ? 'Working harder than baseline for same effort.'
-              : 'Matches pre-flight heart efficiency.',
+            vo2Pct < 80
+              ? 'Cardio fitness is below the spacewalk safety floor — contact flight surgeon.'
+              : hrDrift >= 8
+                ? 'Heart is working harder than usual for standard exercise.'
+                : 'Cardio response to exercise is normal.',
           severity: vo2Pct < 80 ? 'urgent' : hrDrift >= 8 ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.2 · NASA-STD-3001 V1 4001–4003',
+            guideline: 'Flight Rule · Aerobic Capacity',
             headline:
               vo2Pct < 80 || hrDrift >= 8
-                ? 'Step-by-step plan to improve workout heart efficiency'
-                : 'Steps to keep aerobic endurance ready for EVAs',
+                ? 'Actions to improve exercise heart response'
+                : 'Sustaining spacewalk fitness',
             steps:
               vo2Pct < 80 || hrDrift >= 8
                 ? [
-                    'Drink 500 mL water 30 minutes before cardio—dehydration spikes submax HR.',
-                    'Verify sensor fit and finish the assigned treadmill/cycle workload.',
-                    'Review trend with ASCR; only ASCR/medical clears EVA or egress readiness.',
+                    'Drink 500 ml of water 30 minutes before cardio workouts.',
+                    'Confirm wearable strap tension and complete moderate cardio.',
+                    'Review trends with the flight surgeon before spacewalk prep.',
                   ]
                 : [
-                    'Keep VO2 peak >= 80% pre-mission (V1 4003) and above EVA floor (V1 4001/4002).',
-                    'Hydrate before and after sessions to preserve plasma volume.',
-                    'Monitor 1-minute post-exercise HR recovery after standardized bouts.',
+                    'Maintain scheduled cycling or treadmill workouts.',
+                    'Hydrate before and after endurance exercise.',
+                    'Monitor 1-minute heart rate recovery after workouts.',
                   ],
           },
         },
         {
           id: 'hrv',
           systemId: 'cardio',
-          label: 'Heart Rate Variability (HRV)',
+          label: 'Heart Recovery (HRV)',
           reading: latest.hrvMs !== undefined ? `${latest.hrvMs} ms` : '--',
-          vsBaseline: `Normal: >= ${baseline.hrvMinMs} ms RMSSD`,
+          vsBaseline: `Normal: ${baseline.hrvMinMs}+ ms`,
           plainMeaning:
             latest.hrvMs !== undefined && latest.hrvMs < baseline.hrvMinMs
-              ? 'Below recovery floor — nervous system strained.'
-              : 'Healthy autonomic recovery reserve.',
+              ? 'Shows elevated fatigue or stress — prioritize rest and fluids.'
+              : 'Recovery score is normal.',
           severity:
             latest.hrvMs !== undefined && latest.hrvMs < baseline.hrvMinMs * 0.65
               ? 'urgent'
@@ -304,22 +312,22 @@ export function getOrganParametersWithInsights(
                 ? 'caution'
                 : 'nominal',
           insight: {
-            guideline: 'Hazard 2 & 4.2 · Autonomic Stress Link',
+            guideline: 'Flight Rule · Autonomic Recovery',
             headline:
               latest.hrvMs !== undefined && latest.hrvMs < baseline.hrvMinMs
-                ? 'Step-by-step plan to restore autonomic recovery'
-                : 'Steps to preserve healthy heart-rate variability',
+                ? 'Actions to improve physical recovery'
+                : 'Maintaining strong daily recovery',
             steps:
               latest.hrvMs !== undefined && latest.hrvMs < baseline.hrvMinMs
                 ? [
-                    'Spend 10 minutes in slow paced breathing in a dim, quiet crew quarter.',
-                    'Hydrate 500 mL and avoid high-intensity overload while HRV recovers.',
-                    'Cross-check stress logs in Vault (stress can present physically as arrhythmia/HR changes).',
+                    'Take 10 minutes for slow paced breathing in a quiet area.',
+                    'Drink 500 ml of water and prioritize an earlier bedtime.',
+                    'Record high stress or fatigue in your Private Log.',
                   ]
                 : [
-                    'Capture morning HRV upon waking with clean Bio-Monitor contact.',
-                    'Keep 8-hour sleep timing steady across sols.',
-                    'Balance heavy workouts with scheduled rest and hydration.',
+                    'Capture recovery scores shortly after waking.',
+                    'Keep a consistent sleep and wake window.',
+                    'Balance heavy training with adequate rest.',
                   ],
           },
         },
@@ -340,28 +348,28 @@ export function getOrganParametersWithInsights(
         {
           id: 'fluids-today',
           systemId: 'nutrition-hydration',
-          label: 'Fluids Drunk Today',
-          reading: `${latest.fluidIntakeMl} mL`,
-          vsBaseline: `Goal: ${baseline.fluidTargetMl} mL (V2 6109 habitat ~2.5L)`,
+          label: 'Fluid Intake',
+          reading: `${latest.fluidIntakeMl} ml`,
+          vsBaseline: `Target: ${baseline.fluidTargetMl} ml`,
           plainMeaning: fluidLow
-            ? 'Below personal target — raises kidney-stone risk.'
-            : 'Clean hydration protecting kidneys.',
+            ? 'Below daily target — drink water now to protect kidney health.'
+            : 'Daily hydration is on target.',
           severity: fluidLow ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.5 · Hydration & V2 6109 Habitat Context',
+            guideline: 'Flight Rule · Hydration',
             headline: fluidLow
-              ? 'Step-by-step plan to close today’s fluid gap'
-              : 'Steps to keep kidneys flushed and protected',
+              ? 'Actions to restore hydration'
+              : 'Maintaining healthy daily hydration',
             steps: fluidLow
               ? [
-                  'Drink 450–500 mL water now; V2 6109 specifies habitat ~2.5 L/d supply, while alerts track your personal target.',
-                  'Pair water with citrus/potassium citrate when urine is concentrated.',
-                  'Add 500 mL fluid around heavy ARED or EVA sessions.',
+                  'Drink 500 ml of water right away.',
+                  'Monitor urine color until it returns to pale yellow.',
+                  'Increase fluid intake after exercise and spacewalks.',
                 ]
               : [
-                  'Sip steadily through the sol to maintain urine output and dilution.',
-                  'Watch urine color and volume rather than relying on thirst alone.',
-                  'Escalate flank pain or dysuria urgently under medical protocol.',
+                  'Drink fluids steadily throughout the day.',
+                  'Check urine color regularly rather than relying on thirst.',
+                  'Report any flank discomfort immediately.',
                 ],
           },
         },
@@ -372,8 +380,8 @@ export function getOrganParametersWithInsights(
           reading: `${tempVal.toFixed(1)}°C`,
           vsBaseline: `Normal: ${baseline.bodyTempCRange[0]}–${baseline.bodyTempCRange[1]}°C`,
           plainMeaning: tempAbnormal
-            ? 'Outside normal temperature range — rest and verify.'
-            : 'Normal body temperature.',
+            ? 'Outside normal range — rest and re-check temperature.'
+            : 'Body temperature is normal.',
           severity:
             tempVal >= 38.0 || tempVal <= 35.2
               ? 'urgent'
@@ -381,32 +389,32 @@ export function getOrganParametersWithInsights(
                 ? 'caution'
                 : 'nominal',
           insight: {
-            guideline: 'Hazard 4.5 & 5.3 · Thermoregulation & Immune Check',
+            guideline: 'Flight Rule · Temperature',
             headline: tempAbnormal
-              ? 'Step-by-step plan for abnormal body temperature'
-              : 'Steps to keep body temperature balanced',
+              ? 'Actions for abnormal body temperature'
+              : 'Maintaining normal thermal balance',
             steps: tempAbnormal
               ? [
-                  'Verify thermometer reading after 15 minutes of calm rest.',
-                  'Log any Hazard 5.3 immune/infection symptoms (chills, sore throat, rash, fatigue).',
-                  'Escalate promptly to Flight Surgeon if >= 38.0°C.',
+                  'Rest for 15 minutes and re-measure body temperature.',
+                  'Log any chills, sore throat, or cough in Cabin & Suits.',
+                  'Contact the flight surgeon if temperature stays above 38.0°C.',
                 ]
               : [
-                  'Verify Hazard 5.1 cabin airflow and temperature stay comfortable.',
-                  'Hydrate after workouts to support thermoregulation.',
-                  'Log fever or chills promptly in Environment / Check-In.',
+                  'Keep cabin ventilation and cooling comfortable.',
+                  'Rehydrate after workouts to assist cooling.',
+                  'Report fever or chills immediately.',
                 ],
           },
         },
         {
           id: 'blood-sugar',
           systemId: 'nutrition-hydration',
-          label: 'Blood Sugar',
+          label: 'Blood Glucose',
           reading: `${glucoseVal} mg/dL`,
-          vsBaseline: `Normal: ${baseline.bloodGlucoseMgDlRange[0]}–${baseline.bloodGlucoseMgDlRange[1]}`,
+          vsBaseline: `Normal: ${baseline.bloodGlucoseMgDlRange[0]}–${baseline.bloodGlucoseMgDlRange[1]} mg/dL`,
           plainMeaning: glucoseAbnormal
-            ? 'Outside normal fuel zone — balance ration & fluids.'
-            : 'Steady metabolic energy.',
+            ? 'Outside normal range — adjust food or fluids and re-check.'
+            : 'Blood glucose is normal.',
           severity:
             glucoseVal < 65 || glucoseVal > 180
               ? 'urgent'
@@ -414,39 +422,39 @@ export function getOrganParametersWithInsights(
                 ? 'caution'
                 : 'nominal',
           insight: {
-            guideline: 'Hazard 4.5 · Energy, Protein & Metabolic Balance',
+            guideline: 'Flight Rule · Nutrition & Energy',
             headline: glucoseAbnormal
-              ? 'Step-by-step plan to bring blood sugar into the safe zone'
-              : 'Steps to maintain steady energy all sol',
+              ? 'Actions to stabilize blood glucose'
+              : 'Maintaining steady daily energy',
             steps:
               glucoseVal < baseline.bloodGlucoseMgDlRange[0]
                 ? [
-                    'Consume a quick carbohydrate + protein ration and re-check in 15 minutes.',
-                    'Meet daily energy (~2,850 kcal) and protein (~112 g) goals.',
-                    'Report nausea or food intolerance (Hazard 4.5 & 5.3) if intake stays low.',
+                    'Consume fast-acting carbs with protein now and re-check in 15 minutes.',
+                    'Finish scheduled meals without skipping rations.',
+                    'Notify the flight surgeon if nausea prevents eating.',
                   ]
                 : glucoseAbnormal
                   ? [
-                      'Hydrate with plain water and balance protein + fiber at next meal.',
-                      'Re-check in 1–2 hours and flag persistent shifts for medical review.',
-                      'Check Hazard 5.3 food acceptability logs if rations are skipped.',
+                      'Drink plain water and choose balanced protein at your next meal.',
+                      'Re-check blood glucose in 1 to 2 hours.',
+                      'Report food intolerance or poor appetite.',
                     ]
                   : [
-                      'Space meals evenly to meet calorie (~2,850 kcal) and protein (~112 g) targets.',
-                      'Ensure priority micronutrients (Vit D, K, Ca, K+, C, B1, Folate).',
-                      'Rotate rations early if menu fatigue drops appetite.',
+                      'Space meals evenly across your shift.',
+                      'Finish daily vitamin and mineral supplements.',
+                      'Rotate meal selections if appetite drops.',
                     ],
           },
         },
         {
           id: 'urine-salt',
           systemId: 'nutrition-hydration',
-          label: 'Urine & Salt Balance',
-          reading: `${latest.urineOutputMl} mL`,
-          vsBaseline: `${latest.urineDarkConcentrated ? 'Dark urine' : 'Pale'} · ${latest.sodiumMg} mg salt`,
+          label: 'Urine Output & Sodium',
+          reading: `${latest.urineOutputMl} ml`,
+          vsBaseline: `${latest.urineDarkConcentrated ? 'Dark urine' : 'Clear / Pale'} · ${latest.sodiumMg} mg sodium`,
           plainMeaning: latest.urineDarkConcentrated
-            ? 'Dark urine — drink 500 mL water now.'
-            : 'Healthy urine dilution.',
+            ? 'Dark concentrated urine — drink 500 ml of water promptly.'
+            : 'Urine output and concentration look normal.',
           severity:
             latest.renalColicSymptoms
               ? 'urgent'
@@ -454,22 +462,22 @@ export function getOrganParametersWithInsights(
                 ? 'caution'
                 : 'nominal',
           insight: {
-            guideline: 'Hazard 4.5 · Kidney-Stone Risk Prevention',
+            guideline: 'Flight Rule · Kidney & Sodium Care',
             headline:
               latest.urineDarkConcentrated || latest.sodiumMg > baseline.sodiumLimitMg
-                ? 'Step-by-step plan to dilute urine & lower salt load'
-                : 'Steps to keep urine clear and sodium in check',
+                ? 'Actions to improve hydration and lower sodium'
+                : 'Protecting kidney health in flight',
             steps:
               latest.urineDarkConcentrated || latest.sodiumMg > baseline.sodiumLimitMg
                 ? [
-                    'Drink 500 mL water now to raise urine output and lower supersaturation.',
-                    'Keep sodium below 2,300 mg to reduce urinary calcium and SANS pressure.',
-                    'Escalate immediately for flank pain, dysuria, or blood in urine (renal colic).',
+                    'Drink 500 ml of water immediately.',
+                    'Select lower-sodium meal packs for upcoming meals.',
+                    'Notify the flight surgeon immediately if flank or urinary pain occurs.',
                   ]
                 : [
-                    'Target pale urine, ~1,800+ mL output, and healthy urine citrate levels.',
-                    'Keep daily sodium under 2,300 mg.',
-                    'App monitors hydration trends; it never diagnoses kidney stones.',
+                    'Keep urine pale yellow throughout the day.',
+                    'Keep sodium below your daily target.',
+                    'Report side pain or painful urination right away.',
                   ],
           },
         },
@@ -488,71 +496,75 @@ export function getOrganParametersWithInsights(
         {
           id: 'iop',
           systemId: 'vision-sans',
-          label: 'Eye Pressure (IOP)',
+          label: 'Eye Pressure',
           reading: `${latest.iopMmHg} mmHg`,
           vsBaseline: `Normal: ${baseline.iopMmHgRange[0]}–${baseline.iopMmHgRange[1]} mmHg`,
           plainMeaning: iopAbnormal
-            ? 'Eye pressure outside baseline range — repeat calmly.'
-            : 'Eye pressure is within individual range.',
+            ? 'Outside normal range — rest quietly and re-check.'
+            : 'Eye pressure is within normal limits.',
           severity: iopAbnormal ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.4 · Vision / SANS Tonometry',
+            guideline: 'Flight Rule · Ocular Health',
             headline: iopAbnormal
-              ? 'Step-by-step plan to re-check eye pressure'
-              : 'Steps to keep eye monitoring consistent',
+              ? 'Actions for elevated eye pressure'
+              : 'Protecting vision in low gravity',
             steps: iopAbnormal
               ? [
-                  'Rest calmly 5 minutes and repeat tonometry only under approved protocol.',
-                  'Keep daily sodium below 2,300 mg.',
-                  'Route repeated shifts to authorized medical team; app does not diagnose SANS.',
+                  'Rest calmly for 5 minutes and repeat the eye pressure measurement.',
+                  'Reduce sodium intake to help limit fluid retention.',
+                  'Transmit results to the flight eye specialist.',
                 ]
               : [
-                  'Take IOP measurements in consistent calm resting posture.',
-                  'Breathe steadily during ARED resistance lifts.',
-                  'Pair IOP logs with scheduled OCT/fundoscopy imaging.',
+                  'Measure eye pressure only when calm and rested.',
+                  'Breathe smoothly without holding breath during heavy lifts.',
+                  'Complete scheduled eye imaging on time.',
                 ],
           },
         },
         {
           id: 'wearable-sleep',
           systemId: 'vision-sans',
-          label: 'Sleep (Hazard 2)',
+          label: 'Sleep Duration',
           reading: `${sleepHrs.toFixed(1)} hrs`,
-          vsBaseline: `Ref: ${baseline.sleepTargetHours.toFixed(1)} hrs`,
-          plainMeaning: 'Evidence reference protecting alertness & mood.',
+          vsBaseline: `Target: ${baseline.sleepTargetHours.toFixed(1)} hrs`,
+          plainMeaning: sleepUrgent || sleepWatch
+            ? 'Below target sleep — prioritize full rest tonight.'
+            : 'Sleep duration supports peak alertness.',
           severity: sleepUrgent ? 'urgent' : sleepWatch ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 2.1 · Sleep & Circadian Reference',
+            guideline: 'Flight Rule · Sleep & Alertness',
             headline:
               sleepUrgent || sleepWatch
-                ? 'Step-by-step plan to recover your 8-hour sleep block'
-                : 'Steps to protect deep circadian rest',
+                ? 'Actions to restore an 8-hour sleep routine'
+                : 'Maintaining healthy sleep quality',
             steps:
               sleepUrgent || sleepWatch
                 ? [
-                    'Protect an 8-hour sleep block tonight and limit continuous wakefulness < 16h.',
-                    'Allow a 2–4h sleep-inertia buffer before high-risk tasks after waking.',
-                    'Check Hazard 5.1 cabin noise and CO2 levels if sleep is fragmented.',
+                    'Protect an uninterrupted 8-hour sleep block tonight.',
+                    'Allow a short wake-up period before critical duties.',
+                    'Use hearing protection or check cabin noise if awakened.',
                   ]
                 : [
-                    'Keep sleep/wake aligned with assigned mission schedule.',
-                    'Maintain consistent cabin lighting cues before sleep.',
-                    'Use 3-min PVT-B in Scans whenever groggy or misaligned.',
+                    'Keep a consistent sleep onset schedule.',
+                    'Dim cabin lighting 45 minutes before sleep.',
+                    'Complete a quick reaction check if feeling fatigued.',
                   ],
           },
         },
         {
           id: 'vision-symptoms',
           systemId: 'vision-sans',
-          label: 'Vision Symptoms',
+          label: 'Vision & Eye Exam',
           reading:
             latest.visionSymptoms.length === 0
               ? latest.octExamOverdue
-                ? 'Scan Overdue'
+                ? 'Exam Due'
                 : 'Clear'
               : latest.visionSymptoms.join(', '),
-          vsBaseline: 'Normal: Clear, no headache',
-          plainMeaning: 'Tracks blur, focusing issues, or OCT status.',
+          vsBaseline: 'Normal: Clear vision, no headache',
+          plainMeaning: visionFlagged
+            ? 'Action needed — log vision symptoms or complete scheduled eye scan.'
+            : 'No blurry vision or overdue eye scans.',
           severity:
             latest.visionSymptoms.length > 0
               ? 'urgent'
@@ -560,38 +572,38 @@ export function getOrganParametersWithInsights(
                 ? 'caution'
                 : 'nominal',
           insight: {
-            guideline: 'Hazard 4.4 · OCT, Fundoscopy & SANS Review',
+            guideline: 'Flight Rule · Eye Imaging',
             headline: visionFlagged
-              ? 'Step-by-step plan for vision changes or overdue exam'
-              : 'Steps to monitor vision health in microgravity',
+              ? 'Actions for vision symptoms or due exam'
+              : 'Monitoring eyesight changes',
             steps: visionFlagged
               ? [
-                  'Confirm blurry focus, visual distortion, or persistent headache details.',
-                  'Complete overdue OCT / fundoscopy scan in Scans for optic-disc review.',
-                  'Route findings to medical team for ophthalmic assessment.',
+                  'Record any blurred near vision or persistent headache.',
+                  'Complete overdue eye imaging in the Checks section.',
+                  'Notify the flight surgeon immediately for new vision loss.',
                 ]
               : [
-                  'Complete scheduled visual-acuity, fundoscopy, and OCT scans on time.',
-                  'Log any new blurred near focus or morning headache immediately.',
-                  'Review longitudinal retinal scans alongside prior pre-flight values.',
+                  'Perform scheduled vision and eye imaging checks on time.',
+                  'Report blurry text or morning headaches early.',
+                  'Compare new eye images against pre-flight baselines.',
                 ],
           },
         },
         {
           id: 'fluid-cuff',
           systemId: 'vision-sans',
-          label: 'Fluid-Shift Log (Study)',
-          reading: latest.sansCountermeasureDone ? 'Logged' : 'Pending',
-          vsBaseline: 'Adherence tracking (investigational)',
-          plainMeaning: 'Tracks assigned LBNP/cuff study adherence only.',
+          label: 'Fluid Shift Protocol',
+          reading: latest.sansCountermeasureDone ? 'Completed' : 'Pending',
+          vsBaseline: 'Daily protocol check',
+          plainMeaning: 'Tracks completion of assigned lower-body leg cuff sessions.',
           severity: latest.sansCountermeasureDone ? 'nominal' : 'caution',
           insight: {
-            guideline: 'Hazard 4.4 · SANS Countermeasure Adherence',
-            headline: 'Countermeasure logging & research boundary',
+            guideline: 'Flight Rule · Fluid Management',
+            headline: 'Leg cuff protocol guidance',
             steps: [
-              'SANS countermeasures (LBNP, thigh cuffs, B-vitamins) remain investigational; logging does not claim prevention.',
-              'Record whether assigned monitoring/countermeasure session was completed today.',
-              'Stop immediately if lightheaded or uncomfortable and report to medical team.',
+              'Complete the session as directed by your flight medical plan.',
+              'Record session completion here after finishing.',
+              'Stop immediately if you feel lightheaded or dizzy.',
             ],
           },
         },
@@ -607,56 +619,56 @@ export function getOrganParametersWithInsights(
         {
           id: 'muscle-strength',
           systemId: 'muscle',
-          label: 'Overall Muscle Strength',
+          label: 'Muscle Strength',
           reading: `${latest.strengthPctBaseline.toFixed(1)}%`,
-          vsBaseline: 'Min: 80% (V1 4024)',
+          vsBaseline: 'Target: 80%+ of baseline',
           plainMeaning: strengthLow
-            ? 'Below 80% NASA floor — escalate to ASCR team.'
-            : 'Power ready for EVA and landing.',
+            ? 'Below safety floor — notify flight surgeon before spacewalks.'
+            : 'Strength is normal for mission operations.',
           severity: strengthLow ? 'urgent' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.3 · NASA-STD-3001 V1 4024 (>= 80%)',
+            guideline: 'Flight Rule · Muscle Strength',
             headline: strengthLow
-              ? 'Step-by-step plan to restore muscle strength above 80%'
-              : 'Steps to keep lifting power well above the 80% minimum',
+              ? 'Actions to rebuild muscle strength'
+              : 'Maintaining mission-ready strength',
             steps: strengthLow
               ? [
-                  'Complete prescribed ARED compound sets; do not reduce load without medical/ASCR guidance.',
-                  'Meet ~112 g daily protein and ~2,850 kcal targets.',
-                  'ASCR & medical team determine all EVA, egress, and return-to-duty clearance.',
+                  'Complete full scheduled resistance sets without skipping weight.',
+                  'Meet daily protein and calorie goals.',
+                  'Consult the flight surgeon prior to heavy spacewalk tasks.',
                 ]
               : [
-                  'Maintain 6 days/week ARED resistance compliance.',
-                  'Pair protein meals with lifting days.',
-                  'Track functional mobility tests alongside strength metrics.',
+                  'Train resistance exercises 6 days per week.',
+                  'Consume balanced protein following strength sessions.',
+                  'Track functional mobility alongside strength scores.',
                 ],
           },
         },
         {
           id: 'thigh-ultrasound',
           systemId: 'muscle',
-          label: 'Thigh Ultrasound Size',
+          label: 'Thigh Muscle Size',
           reading: `${latest.muscleCsaPctBaseline.toFixed(1)}%`,
-          vsBaseline: 'Normal: >= 87%',
+          vsBaseline: 'Target: 87%+ of baseline',
           plainMeaning: csaLow
-            ? 'Early muscle size drift — log ultrasound & nutrition.'
-            : 'Muscle size holding steady.',
+            ? 'Gradual muscle loss detected — review workouts and nutrition.'
+            : 'Thigh muscle volume is stable.',
           severity: csaLow ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.3 · Guided Ultrasound CSA Trend',
+            guideline: 'Flight Rule · Muscle Volume',
             headline: csaLow
-              ? 'Step-by-step plan to address ultrasound CSA drift'
-              : 'Steps to protect leg and core muscle size',
+              ? 'Actions to prevent leg muscle loss'
+              : 'Maintaining leg muscle mass',
             steps: csaLow
               ? [
-                  'Compare guided thigh ultrasound scan against pre-mission baseline in Scans.',
-                  'Verify ARED load percentages, calories, and protein have not slipped.',
-                  'Flag repeated CSA decline for ASCR review.',
+                  'Compare ultrasound scans side by side in the Checks tab.',
+                  'Ensure full lower-body training load and protein intake.',
+                  'Share repeat downward trends with the flight surgeon.',
                 ]
               : [
-                  'Capture scheduled guided ultrasound scans for longitudinal comparison.',
-                  'Keep lower-body resistance stimulus full range.',
-                  'Support recovery with adequate daily calories and protein.',
+                  'Capture scheduled ultrasound scans consistently.',
+                  'Use full range of motion on squats and presses.',
+                  'Maintain daily protein targets.',
                 ],
           },
         },
@@ -667,52 +679,52 @@ export function getOrganParametersWithInsights(
           reading: `${latest.rpe} / 10`,
           vsBaseline: 'Normal: 5–7 / 10',
           plainMeaning: rpeHigh
-            ? 'Very high fatigue effort — add rest or check equipment.'
-            : 'Balanced workout tolerance.',
+            ? 'Unusually high strain — increase rest intervals and hydrate.'
+            : 'Training effort feels normal and sustainable.',
           severity: rpeHigh ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.3 · Workload Tolerance (RPE)',
+            guideline: 'Flight Rule · Training Load',
             headline: rpeHigh
-              ? 'Step-by-step plan to manage high workout strain'
-              : 'Steps to keep workout effort in the 5–7 zone',
+              ? 'Actions when workouts feel overly hard'
+              : 'Managing steady training load',
             steps: rpeHigh
               ? [
-                  'Add 60–90s rest between heavy sets and check hydration and sleep.',
-                  'Log equipment drag, fatigue, or pain reasons when modifying a session.',
-                  'Flag repeated high RPE trends for ASCR review.',
+                  'Extend rest between sets by 1 to 2 minutes and drink water.',
+                  'Note whether poor sleep or equipment friction caused high effort.',
+                  'Notify medical staff if repeated sessions feel 9 or 10 out of 10.',
                 ]
               : [
-                  'Target RPE 5–7 / 10 for productive mechanical loading.',
-                  'Warm up 5 minutes before heavy lifting.',
-                  'Log effort honestly to catch early fatigue.',
+                  'Aim for moderate-to-hard effort around 5 to 7 out of 10.',
+                  'Warm up for 5 minutes before heavy lifts.',
+                  'Rate each workout honestly based on perceived strain.',
                 ],
           },
         },
         {
           id: 'muscle-pain',
           systemId: 'muscle',
-          label: 'Muscle Pain',
-          reading: latest.limitingMusclePain ? 'Flagged' : 'None',
-          vsBaseline: 'Normal: Pain-free',
+          label: 'Limiting Muscle Pain',
+          reading: latest.limitingMusclePain ? 'Present' : 'None',
+          vsBaseline: 'Normal: No limiting pain',
           plainMeaning: latest.limitingMusclePain
-            ? 'Limiting pain reported — modify under protocol & escalate.'
-            : 'No strain limiting assigned tasks.',
+            ? 'Pain restricts movement — pause training and contact medical team.'
+            : 'No limiting muscle pain reported.',
           severity: latest.limitingMusclePain ? 'urgent' : 'nominal',
           insight: {
-            guideline: 'Hazard 4.3 · Muscle Symptom Review',
+            guideline: 'Flight Rule · Injury Prevention',
             headline: latest.limitingMusclePain
-              ? 'Step-by-step plan for activity-limiting muscle pain'
-              : 'Steps to keep muscles pain-free',
+              ? 'Actions for limiting muscle pain'
+              : 'Keeping muscles injury-free',
             steps: latest.limitingMusclePain
               ? [
-                  'Stop movements triggering worsening or limiting pain.',
-                  'Modify activity only under approved protocol and document anatomical site.',
-                  'Escalate persistent symptoms to Flight Surgeon / ASCR team.',
+                  'Stop any exercise movement that triggers sharp pain.',
+                  'Modify workout load only with medical guidance.',
+                  'Monitor and report persistent swelling or weakness.',
                 ]
               : [
-                  'Use controlled form on all ARED resistance sets.',
-                  'Include post-session mobility to protect spine and hips.',
-                  'Report persistent soreness early.',
+                  'Maintain controlled lifting form under load.',
+                  'Stretch lightly after workouts.',
+                  'Log minor stiffness early before it worsens.',
                 ],
           },
         },
@@ -729,102 +741,102 @@ export function getOrganParametersWithInsights(
         {
           id: 'daily-dose',
           systemId: 'radiation',
-          label: 'Today’s Radiation Dose',
+          label: 'Daily Radiation Dose',
           reading: `${latest.dailyDoseMsv.toFixed(2)} mSv`,
-          vsBaseline: `Normal: ~${env.radiationAmbientRateMsvDay} mSv/d`,
+          vsBaseline: `Expected ambient: ~${env.radiationAmbientRateMsvDay} mSv`,
           plainMeaning: staleBadge
-            ? 'Dosimetry stale — NEVER assume nominal.'
-            : 'Verified dosimetry inside shielding.',
+            ? 'Sensor reading is outdated — sync your radiation badge.'
+            : 'Daily radiation exposure is properly tracked and normal.',
           severity: staleBadge ? 'data-quality' : 'nominal',
           insight: {
-            guideline: 'Hazard 1 · Space Radiation Dosimetry Quality',
+            guideline: 'Flight Rule · Daily Dosimetry',
             headline: staleBadge
-              ? 'Step-by-step plan when dosimetry is stale/missing'
-              : 'Steps to keep daily dose ALARA',
+              ? 'Actions when radiation badge data is outdated'
+              : 'Minimizing daily radiation exposure',
             steps: staleBadge
               ? [
-                  'Never label exposure Normal when dosimetry is unavailable; symptom reports cannot replace dosimetry.',
-                  'Resync personal dosimeter link and verify timestamp/measured status.',
-                  'Cross-check cabin radiation telemetry in Sync.',
+                  'Never treat radiation as Normal when sensor data is outdated.',
+                  'Sync your chest radiation badge immediately.',
+                  'Check cabin radiation monitors in Earth Sync.',
                 ]
               : [
-                  'Spend sleep and quiet hours in higher-shielded core water-wall quarters.',
-                  'Keep personal dosimeter worn on torso pocket.',
-                  'Keep records linked with behavioral health (hippocampus stress + radiation sensitivity).',
+                  'Sleep inside shielded crew quarters.',
+                  'Wear your personal radiation badge continuously.',
+                  'Record any solar storm exposure in your mission log.',
                 ],
           },
         },
         {
           id: 'dosimeter-badge',
           systemId: 'radiation',
-          label: 'Dosimeter Badge',
-          reading: staleBadge ? 'Stale' : 'Measured',
-          vsBaseline: 'Verified within 24h',
+          label: 'Radiation Badge',
+          reading: staleBadge ? 'Update Needed' : 'Live & Synced',
+          vsBaseline: 'Synced within 24 hours',
           plainMeaning: staleBadge
-            ? 'Over 24h old — reconnect badge immediately.'
-            : 'Live measured personal dosimetry.',
+            ? 'No update in over 24 hours — reconnect badge.'
+            : 'Personal badge is reporting live readings.',
           severity: staleBadge ? 'data-quality' : 'nominal',
           insight: {
-            guideline: 'Hazard 1 · Data-Quality Trigger',
+            guideline: 'Flight Rule · Sensor Integrity',
             headline: staleBadge
-              ? 'Step-by-step plan to restore measured dosimetry'
-              : 'Steps to maintain verified dosimetry',
+              ? 'Actions to restore radiation badge sync'
+              : 'Maintaining reliable sensor tracking',
             steps: staleBadge
               ? [
-                  'Verify personal dosimeter battery and habitat bus connection.',
-                  'Confirm measured (not modeled-only) status and timestamp.',
-                  'Log event location manually until sensor sync resumes.',
+                  'Inspect badge power and dock connection.',
+                  'Confirm status returns to Live & Synced.',
+                  'Note work locations manually until sync resumes.',
                 ]
               : [
-                  'Verify dosimeter reads Measured (< 24h) daily.',
-                  'Retain longitudinal career logs across flights without treating limits as targets.',
-                  'Follow official mission protocols—app never issues independent radiation all-clear.',
+                  'Verify live status daily during shift start.',
+                  'Preserve cumulative mission dose history.',
+                  'Follow Ground radiation advisories at all times.',
                 ],
           },
         },
         {
           id: 'career-cumulative',
           systemId: 'radiation',
-          label: 'Cumulative Exposure',
+          label: 'Career Radiation Total',
           reading: `${totalCareerMsv.toFixed(0)} mSv`,
-          vsBaseline: `Advisory: ${baseline.careerRadiationLimitMsv} mSv (ALARA)`,
-          plainMeaning: 'Long-term record only — not a safety guarantee.',
+          vsBaseline: `Career limit: ${baseline.careerRadiationLimitMsv} mSv`,
+          plainMeaning: 'Tracks lifetime cumulative exposure against safety limits.',
           severity: careerHigh ? 'caution' : 'nominal',
           insight: {
-            guideline: 'Hazard 1 · Cumulative ALARA & Career Follow-Up',
-            headline: 'Longitudinal record & interpretation boundaries',
+            guideline: 'Flight Rule · Career Limit',
+            headline: 'Protecting long-term health',
             steps: [
-              'Keep dose As Low As Reasonably Achievable; do not treat historical limits as targets or safety guarantees.',
-              'App never generates personalized cancer forecasts or genetic susceptibility scores.',
-              'Preserve exposure & post-event follow-up logs across missions (latent phases can mask injury).',
+              'Keep cumulative radiation exposure as low as reasonably achievable.',
+              'Maintain complete records across all missions.',
+              'Complete routine medical follow-ups as scheduled.',
             ],
           },
         },
         {
           id: 'solar-storm',
           systemId: 'radiation',
-          label: 'SPE Warning Relay',
-          reading: speState.activeWarning ? 'ACTIVE' : 'Quiet',
-          vsBaseline: 'Normal: Quiet',
+          label: 'Solar Storm Status',
+          reading: speState.activeWarning ? 'STORM ACTIVE' : 'Clear',
+          vsBaseline: 'Normal: Clear',
           plainMeaning: speState.activeWarning
-            ? 'Relay active — follow shelter protocol.'
-            : 'No official SPE relay active.',
+            ? 'Active solar storm — remain in shielded shelter until all-clear.'
+            : 'No active solar particle warning.',
           severity: speState.activeWarning ? 'urgent' : 'nominal',
           insight: {
-            guideline: 'Hazard 1 · Official-Warning Relay & Shelter Protocol',
+            guideline: 'Flight Rule · Solar Storm Shelter',
             headline: speState.activeWarning
-              ? 'Urgent official solar storm shelter protocol'
-              : 'Steps to stay ready for SPE relays',
+              ? 'Immediate actions during solar storm'
+              : 'Solar storm preparedness',
             steps: speState.activeWarning
               ? [
-                  `Acknowledge relay and enter ${speState.assignedShelter}; log shelter entry/exit and EVA status.`,
-                  'App is never the sole warning channel and never issues an independent all-clear.',
-                  'Never exit shelter based only on symptom absence; follow official mission instructions.',
+                  `Enter ${speState.assignedShelter} and confirm shelter status.`,
+                  'Remain inside until Mission Control issues official all-clear.',
+                  'Do not exit early even if you feel completely fine.',
                 ]
               : [
-                  'Verify assigned shelter route and emergency supplies.',
-                  'Record any EVA exposure context alongside official warnings.',
-                  'Log nausea, skin changes, GI fluid loss, or CNS red flags for clinical review.',
+                  'Keep the route to shielded quarters clear.',
+                  'Log any spacewalk during solar watch periods.',
+                  'Report nausea, skin redness, or confusion right away.',
                 ],
           },
         },

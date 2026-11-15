@@ -19,11 +19,11 @@ export interface AstronautRankInfo {
 }
 
 const RANKS = [
-  { minXp: 0, level: 1, title: 'Flight Cadet' },
+  { minXp: 0, level: 1, title: 'Flight Crew' },
   { minXp: 250, level: 2, title: 'Mission Specialist' },
-  { minXp: 600, level: 3, title: 'Readiness Officer' },
-  { minXp: 1200, level: 4, title: 'Deep-Space Commander' },
-  { minXp: 2200, level: 5, title: 'Kaizens Vanguard' },
+  { minXp: 600, level: 3, title: 'Senior Specialist' },
+  { minXp: 1200, level: 4, title: 'Flight Commander' },
+  { minXp: 2200, level: 5, title: 'Mission Commander' },
 ];
 
 export function computeAstronautRank(xp: number): AstronautRankInfo {
@@ -71,16 +71,14 @@ export function buildMissionRoutinePrompts(
   const prompts: RoutinePromptItem[] = [
     {
       id: 'routine-bp-posture',
-      title: 'Blood Pressure & Heart Rate Check',
-      plainInstruction:
-        'Rest calmly for 3 minutes, put the cuff at heart level, and record BP with your exact posture.',
-      whyItMatters:
-        'Catches early cardiovascular drift before an EVA or surface gravity landing.',
+      title: 'Check Blood Pressure & Posture',
+      plainInstruction: 'Rest quietly for 3 minutes, measure blood pressure, and record your posture.',
+      whyItMatters: 'Detects circulation changes early before spacewalks.',
       xpReward: 40,
       priority: doneSet.has('routine-bp-posture') ? 'completed' : 'due-now',
       statusColor:
         latest.restingHrBpm > baseline.restingHrRange[1] ? 'caution' : 'nominal',
-      cadenceLabel: 'Every Mission Day',
+      cadenceLabel: 'Daily',
       targetSystem: 'cardio',
       actionId: 'cardio-3',
     },
@@ -88,29 +86,25 @@ export function buildMissionRoutinePrompts(
       id: 'routine-ared-bone',
       title:
         env.id === 'mars-base'
-          ? '0.38g Readaptation & Resistance Check'
-          : 'ARED Bone & Muscle Loading Session',
-      plainInstruction:
-        'Complete weighted squats, deadlifts, and heel raises without reducing target loads.',
-      whyItMatters:
-        'Keeps Hip/Spine BMD >= 95% and leg strength >= 80% against space unloading.',
+          ? 'Partial-Gravity Resistance Workout'
+          : 'Daily Resistance Training',
+      plainInstruction: 'Complete scheduled squats and resistance lifts.',
+      whyItMatters: 'Preserves hip and spine bone density in low gravity.',
       xpReward: 50,
       priority:
         latest.aredCompleted || completedActionIds['bone-1'] || doneSet.has('routine-ared-bone')
           ? 'completed'
           : 'due-now',
       statusColor: latest.hipSpineBmdPct < 95 ? 'urgent' : !latest.aredCompleted ? 'caution' : 'nominal',
-      cadenceLabel: 'Daily Exercise Routine',
+      cadenceLabel: 'Daily Workout',
       targetSystem: 'bone',
       actionId: 'bone-1',
     },
     {
       id: 'routine-hydration',
-      title: 'Hydration Boost (+500 mL Fluid Goal)',
-      plainInstruction:
-        'Drink 500 mL of water and check if urine color is pale rather than dark or concentrated.',
-      whyItMatters:
-        'Prevents dehydration fatigue and protects kidneys from stone formation in flight.',
+      title: 'Drink 500 ml (2 Glasses) of Water',
+      plainInstruction: 'Drink 500 ml of water and confirm urine stays pale yellow.',
+      whyItMatters: 'Prevents dehydration fatigue and lowers kidney stone risk.',
       xpReward: 25,
       priority:
         latest.fluidIntakeMl >= baseline.fluidTargetMl && !latest.urineDarkConcentrated
@@ -122,17 +116,15 @@ export function buildMissionRoutinePrompts(
         latest.urineDarkConcentrated || latest.fluidIntakeMl < baseline.fluidTargetMl * 0.85
           ? 'caution'
           : 'nominal',
-      cadenceLabel: `Target ${baseline.fluidTargetMl} mL/day`,
+      cadenceLabel: `Target ${baseline.fluidTargetMl} ml/day`,
       targetSystem: 'nutrition-hydration',
       actionId: 'nutr-1',
     },
     {
       id: 'routine-pvt-focus',
-      title: 'Run 45s or 3-Min Focus Speed Test (PVT-B)',
-      plainInstruction:
-        'Tap the counter box as fast as you can when it lights up to measure true alertness.',
-      whyItMatters:
-        'Fatigue slows reflexes well before you notice you are tired — vital before EVAs.',
+      title: 'Complete Alertness & Reaction Check',
+      plainInstruction: 'Respond quickly when the signal box turns blue.',
+      whyItMatters: 'Measures mental sharpness before critical duties.',
       xpReward: 50,
       priority:
         doneSet.has('routine-pvt-focus') || (latestPvt && latestPvt.sol >= env.currentDay)
@@ -140,18 +132,16 @@ export function buildMissionRoutinePrompts(
           : 'routine',
       statusColor:
         latestPvt && latestPvt.meanRtMs > baseline.pvtBaselineMs + 45 ? 'caution' : 'nominal',
-      cadenceLabel: 'Pre-Shift / Pre-EVA',
+      cadenceLabel: 'Pre-Shift',
       targetTab: 'assessments',
     },
     {
       id: 'routine-env-cabin',
       title: isRoverOrSurface
-        ? `${env.shortLabel} Air, CO₂ & Dust Safety Check`
-        : 'Cabin Atmosphere & Dosimeter Verification',
-      plainInstruction:
-        'Check cabin CO₂ (<= 3.0 mmHg), temperature, and verify your personal dosimeter reads Measured.',
-      whyItMatters:
-        'Silent CO₂ rise causes headaches and slow thinking; stale sensors can hide real risks.',
+        ? `${env.shortLabel} Air & Dust Check`
+        : 'Cabin Air & Radiation Check',
+      plainInstruction: 'Confirm cabin temperature, CO2 level, and live radiation badge status.',
+      whyItMatters: 'Elevated CO2 reduces focus and outdated sensors hide risk.',
       xpReward: 30,
       priority: doneSet.has('routine-env-cabin') ? 'completed' : 'routine',
       statusColor:
@@ -160,23 +150,21 @@ export function buildMissionRoutinePrompts(
           : (latest.cabinCo2MmHg ?? 2.8) > baseline.cabinCo2MaxMmHg
             ? 'caution'
             : 'nominal',
-      cadenceLabel: 'Shift Start Routine',
+      cadenceLabel: 'Shift Start',
       targetTab: 'environment',
     },
     {
       id: 'routine-sleep-vault',
-      title: 'Log Sleep & Mood in Private Vault',
-      plainInstruction:
-        'Record hours slept, workload hours, and stress score (stays private on your device).',
-      whyItMatters:
-        'Protects your 8h sleep goal and flags heavy-work streaks before burnout builds.',
+      title: 'Log Sleep & Well-Being Privately',
+      plainInstruction: 'Record sleep hours and daily stress in your private on-device log.',
+      whyItMatters: 'Supports achieving 8 hours of quality sleep nightly.',
       xpReward: 35,
       priority:
         doneSet.has('routine-sleep-vault') || (latestVault && latestVault.sol >= env.currentDay)
           ? 'completed'
           : 'routine',
       statusColor: latestVault && latestVault.sleepHours < 7 ? 'caution' : 'nominal',
-      cadenceLabel: 'Every Evening',
+      cadenceLabel: 'Evening',
       targetTab: 'vault',
     },
   ];
@@ -194,51 +182,51 @@ export function computeGamificationBadges(
   return [
     {
       id: 'badge-iron-bones',
-      title: 'Iron Frame',
-      description: 'Maintain active ARED resistance training streaks.',
+      title: 'Bone Resilience',
+      description: 'Maintain consistent resistance training.',
       unlocked: evaluation.streaks.aredStreakDays >= 3 || actionsDone >= 3,
-      progressText: `${evaluation.streaks.aredStreakDays}d ARED streak`,
+      progressText: `${evaluation.streaks.aredStreakDays}-day streak`,
     },
     {
       id: 'badge-hydration',
-      title: 'Clear Waters',
-      description: 'Keep hydration & electrolyte targets steady.',
+      title: 'Hydration Discipline',
+      description: 'Meet daily fluid targets consistently.',
       unlocked:
         evaluation.streaks.hydrationStreakDays >= 3 ||
         (!!latest && latest.fluidIntakeMl >= 2500 && !latest.urineDarkConcentrated),
-      progressText: `${evaluation.streaks.hydrationStreakDays}d hydration streak`,
+      progressText: `${evaluation.streaks.hydrationStreakDays}-day streak`,
     },
     {
       id: 'badge-sharp-focus',
-      title: 'Eagle Focus',
-      description: 'Complete at least 3 PVT-B reaction speed checks.',
+      title: 'Peak Alertness',
+      description: 'Complete 3 reaction check sessions.',
       unlocked: pvtSessions.length >= 3,
-      progressText: `${pvtSessions.length} / 3 focus tests`,
+      progressText: `${pvtSessions.length} of 3 checks`,
     },
     {
       id: 'badge-cabin-steward',
-      title: 'Habitat Steward',
-      description: 'Verify live cabin CO₂, O₂, and food safety.',
+      title: 'Cabin Steward',
+      description: 'Keep cabin sensors live and food log current.',
       unlocked:
         !!latest &&
         latest.envDataStatus !== 'stale' &&
         (latest.foodAcceptabilityScore ?? 3) >= 3 &&
         !latest.foodSafetyFlag,
-      progressText: latest?.envDataStatus === 'stale' ? 'Verify sensors' : 'Verified live',
+      progressText: latest?.envDataStatus === 'stale' ? 'Update sensor' : 'Verified live',
     },
     {
       id: 'badge-rad-sentinel',
-      title: 'Dose Sentinel',
-      description: 'Keep personal dosimeter continuously Measured (<24h).',
+      title: 'Radiation Monitor',
+      description: 'Keep your radiation badge synced daily.',
       unlocked: !!latest && latest.dosimetryStatus === 'measured',
-      progressText: latest?.dosimetryStatus === 'measured' ? 'Measured live' : 'Check dosimeter',
+      progressText: latest?.dosimetryStatus === 'measured' ? 'Updated today' : 'Sync required',
     },
     {
       id: 'badge-mindful',
-      title: 'Balanced Mind',
-      description: 'Keep regular private sleep & stress vault logs.',
+      title: 'Rested & Balanced',
+      description: 'Maintain regular private sleep entries.',
       unlocked: evaluation.streaks.sleepLogStreakDays >= 5,
-      progressText: `${evaluation.streaks.sleepLogStreakDays} vault logs`,
+      progressText: `${evaluation.streaks.sleepLogStreakDays} entries logged`,
     },
   ];
 }

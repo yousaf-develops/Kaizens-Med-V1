@@ -38,8 +38,8 @@ interface SystemsMatrixViewProps {
 const SEV_PILL: Record<AlertSeverity, { label: string; cls: string }> = {
   nominal: { label: '● Normal', cls: 'text-emerald-400' },
   caution: { label: '▲ Watch', cls: 'text-amber-400' },
-  urgent: { label: '✖ Alert', cls: 'text-rose-400' },
-  'data-quality': { label: '◌ Stale', cls: 'text-zinc-400' },
+  urgent: { label: '✖ Not Normal', cls: 'text-rose-400' },
+  'data-quality': { label: '◌ Update Needed', cls: 'text-zinc-400' },
 };
 
 export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
@@ -58,6 +58,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
 }) => {
   const [filterSeverity, setFilterSeverity] = useState<'all' | 'flagged'>('all');
   const [solWindow, setSolWindow] = useState<'7' | '14' | 'all'>('14');
+  const [showScenarios, setShowScenarios] = useState(false);
   const latest = history[history.length - 1];
   const chartHistory =
     solWindow === '7'
@@ -96,94 +97,108 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* Compact Simulator & Dynamic Chart Timeframe Controls */}
-      <div className="glass-3d rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm sm:text-base font-medium text-white">
-            Dynamic Multi-Sol Trends ({chartHistory.length} Sols)
-          </span>
-          <div className="glass-3d-recessed flex items-center gap-1 rounded-xl p-1 text-xs font-semibold">
-            {([
-              { id: '7', label: '7 Sols' },
-              { id: '14', label: '14 Sols' },
-              { id: 'all', label: 'All' },
-            ] as const).map((w) => (
+      {/* Compact Timeframe Header + Collapsible Mission Scenarios */}
+      <div className="glass-3d rounded-2xl px-5 py-3.5 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm sm:text-base font-semibold text-white">
+              Health Trends ({chartHistory.length} Days)
+            </span>
+            <div className="glass-3d-recessed flex items-center gap-1 rounded-xl p-1 text-xs font-semibold">
+              {([
+                { id: '7', label: '7 Days' },
+                { id: '14', label: '14 Days' },
+                { id: 'all', label: 'All' },
+              ] as const).map((w) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  onClick={() => setSolWindow(w.id)}
+                  className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                    solWindow === w.id ? 'bg-white text-zinc-950 font-bold' : 'text-zinc-300 hover:text-white'
+                  }`}
+                >
+                  {w.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {onAdvanceSol && (
               <button
-                key={w.id}
                 type="button"
-                onClick={() => setSolWindow(w.id)}
-                className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                  solWindow === w.id ? 'bg-white text-zinc-950 font-bold' : 'text-zinc-300 hover:text-white'
-                }`}
+                onClick={onAdvanceSol}
+                className="btn-mono-primary px-4 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
               >
-                {w.label}
+                <Plus className="h-4 w-4" />
+                +1 Mission Day
               </button>
-            ))}
+            )}
+            <button
+              type="button"
+              onClick={() => setShowScenarios((prev) => !prev)}
+              className="btn-mono-glass px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap cursor-pointer"
+            >
+              {showScenarios ? 'Hide Scenarios' : 'Mission Scenarios'}
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {onAdvanceSol && (
+        {showScenarios && (
+          <div className="reveal-panel pt-2.5 border-t border-white/10 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={onAdvanceSol}
-              className="btn-mono-primary px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+              onClick={handleToggleSpe}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                speState.activeWarning
+                  ? 'border-rose-400/60 bg-rose-500/80 text-white'
+                  : 'btn-mono-glass'
+              }`}
             >
-              <Plus className="h-4 w-4" />
-              Advance +1 Sol
+              <Radio className="h-3.5 w-3.5" />
+              {speState.activeWarning ? 'Clear Solar Storm' : 'Simulate Solar Storm'}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={handleToggleSpe}
-            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              speState.activeWarning
-                ? 'border-rose-400/60 bg-rose-500/80 text-white'
-                : 'btn-mono-glass'
-            }`}
-          >
-            <Radio className="h-4 w-4" />
-            {speState.activeWarning ? 'Clear Solar Storm' : 'Simulate Storm'}
-          </button>
 
-          <button
-            type="button"
-            onClick={onToggleDosimetryStale}
-            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              latest?.dosimetryStatus === 'stale'
-                ? 'border-amber-400/60 bg-amber-400 text-zinc-950'
-                : 'btn-mono-glass'
-            }`}
-          >
-            <Database className="h-4 w-4" />
-            {latest?.dosimetryStatus === 'stale' ? 'Restore Sensor' : 'Test Stale Sensor'}
-          </button>
-
-          {onPatchTelemetry && (
             <button
               type="button"
-              onClick={() => {
-                const isPost = latest?.postLandingPhase === 'Post-Landing Readapting';
-                onPatchTelemetry(
-                  {
-                    postLandingPhase: isPost ? 'In-Flight' : 'Post-Landing Readapting',
-                    postLandingSymptoms: !isPost,
-                  },
-                  isPost ? 'Post-landing phase cleared' : 'Post-landing readaptation check triggered'
-                );
-              }}
-              className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all whitespace-nowrap shrink-0 cursor-pointer ${
-                latest?.postLandingPhase === 'Post-Landing Readapting'
+              onClick={onToggleDosimetryStale}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                latest?.dosimetryStatus === 'stale'
                   ? 'border-amber-400/60 bg-amber-400 text-zinc-950'
                   : 'btn-mono-glass'
               }`}
             >
-              {latest?.postLandingPhase === 'Post-Landing Readapting'
-                ? 'Clear Post-Landing'
-                : 'Test Post-Landing (4.1)'}
+              <Database className="h-3.5 w-3.5" />
+              {latest?.dosimetryStatus === 'stale' ? 'Restore Dosimeter' : 'Test Outdated Dosimeter'}
             </button>
-          )}
-        </div>
+
+            {onPatchTelemetry && (
+              <button
+                type="button"
+                onClick={() => {
+                  const isPost = latest?.postLandingPhase === 'Post-Landing Readapting';
+                  onPatchTelemetry(
+                    {
+                      postLandingPhase: isPost ? 'In-Flight' : 'Post-Landing Readapting',
+                      postLandingSymptoms: !isPost,
+                    },
+                    isPost ? 'Post-landing status cleared' : 'Post-landing mode enabled'
+                  );
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  latest?.postLandingPhase === 'Post-Landing Readapting'
+                    ? 'border-amber-400/60 bg-amber-400 text-zinc-950'
+                    : 'btn-mono-glass'
+                }`}
+              >
+                {latest?.postLandingPhase === 'Post-Landing Readapting'
+                  ? 'Exit Post-Landing Mode'
+                  : 'Simulate Post-Landing'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Solar Storm Shelter Banner */}
@@ -194,10 +209,10 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
               <AlertOctagon className="h-5 w-5 text-rose-400" />
               <div>
                 <h2 className="text-base font-display font-semibold text-white">
-                  Solar Storm Alert: {speState.eventId}
+                  Solar Storm Alert
                 </h2>
                 <div className="text-sm text-rose-300 font-medium">
-                  Shelter: {speState.assignedShelter}
+                  Move to Shielded Shelter: {speState.assignedShelter}
                 </div>
               </div>
             </div>
@@ -224,19 +239,19 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
                 className="btn-mono-glass px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer"
               >
                 <Timer className="h-4 w-4" />
-                {speState.shelterOccupied ? 'Log Exit' : 'Confirm Shelter'}
+                {speState.shelterOccupied ? 'Exited Shelter' : 'Inside Shelter'}
               </button>
             </div>
           </div>
         </section>
       )}
 
-      {/* 6 Multi-Sol System Cards */}
+      {/* 6 Multi-Day System Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         <article className="reveal-up stagger-1 glass-3d glass-3d-interactive rounded-3xl p-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-display font-semibold text-white">Bone Strength</h3>
+              <h3 className="text-lg font-display font-semibold text-white">Bone Density</h3>
               <span className={`text-xs font-semibold ${SEV_PILL[evaluation.systemSeverities.bone].cls}`}>
                 {SEV_PILL[evaluation.systemSeverities.bone].label}
               </span>
@@ -251,15 +266,15 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.hipSpineBmdPct,
               secondary: d.femoralNeckBmdPct,
             }))}
             primaryLabel="Hip & Spine %"
-            secondaryLabel="Thigh %"
+            secondaryLabel="Femur Neck %"
             unit="%"
             thresholdValue={95}
-            thresholdLabel="Min 95%"
+            thresholdLabel="Safe 95%"
             status={evaluation.systemSeverities.bone}
           />
         </article>
@@ -282,13 +297,13 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.vo2PeakMlKgMin,
             }))}
-            primaryLabel="VO2 Fitness"
-            unit="ml/kg"
+            primaryLabel="Aerobic Fitness"
+            unit="ml/kg/min"
             thresholdValue={env.evaVo2Floor}
-            thresholdLabel={`EVA Min ${env.evaVo2Floor}`}
+            thresholdLabel={`EVA Floor ${env.evaVo2Floor}`}
             status={evaluation.systemSeverities.cardio}
           />
         </article>
@@ -311,15 +326,15 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.strengthPctBaseline,
               secondary: d.muscleCsaPctBaseline,
             }))}
             primaryLabel="Strength %"
-            secondaryLabel="CSA %"
+            secondaryLabel="Muscle Size %"
             unit="%"
             thresholdValue={80}
-            thresholdLabel="Min 80%"
+            thresholdLabel="Safe 80%"
             status={evaluation.systemSeverities.muscle}
           />
         </article>
@@ -342,13 +357,13 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.iopMmHg,
             }))}
-            primaryLabel="IOP"
+            primaryLabel="Eye Pressure"
             unit="mmHg"
             thresholdValue={baseline.iopMmHgRange[1]}
-            thresholdLabel={`Max ${baseline.iopMmHgRange[1]}`}
+            thresholdLabel={`Limit ${baseline.iopMmHgRange[1]}`}
             status={evaluation.systemSeverities['vision-sans']}
           />
         </article>
@@ -356,7 +371,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
         <article className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-display font-semibold text-white">Hydration</h3>
+              <h3 className="text-lg font-display font-semibold text-white">Fluids &amp; Hydration</h3>
               <span className={`text-xs font-semibold ${SEV_PILL[evaluation.systemSeverities['nutrition-hydration']].cls}`}>
                 {SEV_PILL[evaluation.systemSeverities['nutrition-hydration']].label}
               </span>
@@ -371,15 +386,15 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.fluidIntakeMl,
               secondary: d.urineOutputMl,
             }))}
-            primaryLabel="Water In"
+            primaryLabel="Fluid In"
             secondaryLabel="Urine Out"
-            unit="mL"
+            unit="ml"
             thresholdValue={baseline.fluidTargetMl}
-            thresholdLabel={`Goal ${baseline.fluidTargetMl}`}
+            thresholdLabel={`Target ${baseline.fluidTargetMl}`}
             status={evaluation.systemSeverities['nutrition-hydration']}
           />
         </article>
@@ -387,7 +402,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
         <article className="glass-3d glass-3d-interactive rounded-3xl p-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-display font-semibold text-white">Radiation</h3>
+              <h3 className="text-lg font-display font-semibold text-white">Cumulative Radiation</h3>
               <span className={`text-xs font-semibold ${SEV_PILL[evaluation.systemSeverities.radiation].cls}`}>
                 {SEV_PILL[evaluation.systemSeverities.radiation].label}
               </span>
@@ -402,7 +417,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
           </div>
           <LongitudinalAreaChart
             data={chartHistory.map((d) => ({
-              label: `Sol ${d.sol}`,
+              label: `Day ${d.sol}`,
               primary: d.cumulativeMissionDoseMsv,
             }))}
             primaryLabel="Mission Total"
@@ -416,7 +431,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
       <section className="glass-3d rounded-3xl p-5 sm:p-6 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-display font-semibold text-white">
-            Active Alerts ({filteredAlerts.length})
+            Active Health Alerts ({filteredAlerts.length})
           </h2>
 
           <div className="glass-3d-recessed flex items-center gap-1 rounded-xl p-1">
@@ -436,7 +451,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
                 filterSeverity === 'flagged' ? 'bg-white text-zinc-950 font-semibold' : 'text-zinc-300 hover:text-white'
               }`}
             >
-              Flagged
+              Needs Attention
             </button>
           </div>
         </div>
@@ -444,7 +459,7 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
         {filteredAlerts.length === 0 ? (
           <div className="flex items-center gap-2 py-5 text-base text-emerald-400 font-semibold">
             <CheckCircle2 className="h-5 w-5" />
-            All parameters within baseline.
+            All monitored body readings are within normal ranges.
           </div>
         ) : (
           <div className="divide-y divide-white/10">
@@ -471,14 +486,17 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
                 >
                   <div className="lg:col-span-4 space-y-0.5">
                     <div className="text-xs font-semibold text-zinc-400">
-                      {alert.hazardLabel} · {alert.classification}
+                      {alert.hazardLabel} · {alert.standardRef}
                     </div>
                     <div className="font-semibold text-white text-base">{alert.title}</div>
                   </div>
                   <div className="lg:col-span-3 tabular-nums text-zinc-200 font-medium">
                     {alert.metricSummary}
                   </div>
-                  <div className="lg:col-span-3 text-zinc-300">{alert.recommendedAction}</div>
+                  <div className="lg:col-span-3 text-zinc-300">
+                    <span className="font-semibold text-zinc-200">What to do: </span>
+                    {alert.recommendedAction}
+                  </div>
                   <div className="lg:col-span-2 flex items-center lg:justify-end gap-3">
                     <span
                       className={`font-semibold shrink-0 ${
@@ -491,10 +509,10 @@ export const SystemsMatrixView: React.FC<SystemsMatrixViewProps> = ({
                     >
                       {alert.severity === 'urgent' ? (
                         <span className="inline-flex items-center gap-1">
-                          <ShieldAlert className="h-4 w-4" /> Alert
+                          <ShieldAlert className="h-4 w-4" /> Not Normal
                         </span>
                       ) : alert.severity === 'data-quality' ? (
-                        '◌ Stale'
+                        '◌ Update Needed'
                       ) : (
                         '▲ Watch'
                       )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScanLine, User, ZoomOut } from 'lucide-react';
 import { AlertSeverity, AstronautGender, SystemId } from '../types/telemetry';
 
@@ -17,6 +17,8 @@ interface AnatomicalHudSvgProps {
   speActive: boolean;
 }
 
+const SPACESHIP_BG_URL = '/assets/aistudio/grey_spaceship_background_287c8ce6.jpg';
+
 const AVATAR_ASSETS: Record<AstronautGender, { standard: string; xray: string }> = {
   male: {
     standard: '/assets/aistudio/Avatar_male_178eaa5e.png',
@@ -29,6 +31,7 @@ const AVATAR_ASSETS: Record<AstronautGender, { standard: string; xray: string }>
 };
 
 const ALL_ASSET_URLS = [
+  SPACESHIP_BG_URL,
   AVATAR_ASSETS.male.standard,
   AVATAR_ASSETS.male.xray,
   AVATAR_ASSETS.female.standard,
@@ -54,13 +57,13 @@ const SEVERITY_COLORS: Record<
   urgent: {
     stroke: '#F87171',
     text: '#F87171',
-    shortStatus: 'Alert',
+    shortStatus: 'Not Normal',
     dot: '#F87171',
   },
   'data-quality': {
     stroke: '#A1A1AA',
     text: '#A1A1AA',
-    shortStatus: 'Stale',
+    shortStatus: 'Update Needed',
     dot: '#A1A1AA',
   },
 };
@@ -80,7 +83,7 @@ interface HotspotSpec {
 
 /**
  * Coordinates locked inside SVG viewBox="0 0 600 440" where the 1:1 avatar image
- * fills (x: 125..475, y: 39..389). Ensures full head-to-toe visibility with zero cropping.
+ * fills comfortably top-to-bottom with zero cropping.
  */
 const HOTSPOTS: HotspotSpec[] = [
   {
@@ -121,7 +124,7 @@ const HOTSPOTS: HotspotSpec[] = [
   },
   {
     id: 'nutrition-hydration',
-    label: 'Hydration',
+    label: 'Fluids & Nutrition',
     cx: 296,
     cy: 272,
     elbowX: 184,
@@ -133,7 +136,7 @@ const HOTSPOTS: HotspotSpec[] = [
   },
   {
     id: 'bone',
-    label: 'Hips & Spine',
+    label: 'Bone Density',
     cx: 300,
     cy: 301,
     elbowX: 416,
@@ -172,10 +175,11 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
   speActive,
 }) => {
   const [hoveredPart, setHoveredPart] = useState<SystemId | null>(null);
+  const landingGlowRef = useRef<HTMLDivElement | null>(null);
   const assets = AVATAR_ASSETS[gender];
   const activeSpot = HOTSPOTS.find((h) => h.id === selectedSystem) ?? HOTSPOTS[0];
 
-  // Eagerly preload all avatar & X-Ray images into browser cache so switching is 0ms instant
+  // Preload avatar, X-Ray, and spaceship corridor images so transitions are instant
   useEffect(() => {
     ALL_ASSET_URLS.forEach((src) => {
       const img = new Image();
@@ -183,53 +187,94 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
     });
   }, []);
 
+  // Subtle #024755 mouse-hover glow inside the avatar landing card (zero React re-renders)
+  const handleLandingPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const glowEl = landingGlowRef.current;
+    if (!glowEl) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    glowEl.style.background = `radial-gradient(440px circle at ${x.toFixed(1)}px ${y.toFixed(1)}px, rgba(2, 71, 85, 0.55) 0%, rgba(2, 71, 85, 0.22) 40%, rgba(0, 0, 0, 0) 74%)`;
+  };
+
+  const handleLandingPointerLeave = () => {
+    const glowEl = landingGlowRef.current;
+    if (!glowEl) return;
+    glowEl.style.background =
+      'radial-gradient(440px circle at 50% 50%, rgba(2, 71, 85, 0.42) 0%, rgba(2, 71, 85, 0.16) 42%, rgba(0, 0, 0, 0) 74%)';
+  };
+
   // =========================================================================
-  // INITIAL LANDING STATE (!isXrayMode): Pure Gender Avatar, Zero Parameters
+  // INITIAL LANDING STATE (!isXrayMode): Gender Avatar Over Slightly Blurred Spaceship + Enlarged Name
   // =========================================================================
   if (!isXrayMode) {
     return (
-      <div className="glass-3d relative flex flex-1 min-h-0 flex-col w-full items-center justify-between overflow-hidden rounded-3xl p-5 sm:p-7">
-        <div className="w-full h-7 shrink-0 flex items-center justify-between text-sm text-zinc-400">
-          <span className="font-semibold text-white">{astronautName}</span>
-          <span>Tap avatar to scan</span>
+      <div
+        onPointerMove={handleLandingPointerMove}
+        onPointerLeave={handleLandingPointerLeave}
+        className="glass-3d relative flex flex-1 min-h-0 flex-col w-full items-center justify-between overflow-hidden rounded-3xl p-5 sm:p-7"
+      >
+        {/* Slightly Blurred Grey Spaceship Backdrop Behind Clear Avatar */}
+        <img
+          src={SPACESHIP_BG_URL}
+          alt=""
+          aria-hidden="true"
+          referrerPolicy="no-referrer"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center blur-[3.5px] scale-105 opacity-80 select-none"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"
+        />
+        {/* Interactive Subtle #024755 Mouse-Hover Glow Layer */}
+        <div
+          ref={landingGlowRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+          style={{
+            background:
+              'radial-gradient(440px circle at 50% 50%, rgba(2, 71, 85, 0.42) 0%, rgba(2, 71, 85, 0.16) 42%, rgba(0, 0, 0, 0) 74%)',
+          }}
+        />
+
+        {/* Enlarged Astronaut Name Header */}
+        <div className="relative z-10 w-full min-h-[48px] shrink-0 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+            {astronautName}
+          </h2>
+          <span className="text-sm font-medium text-zinc-200/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
+            Tap avatar to scan
+          </span>
         </div>
 
+        {/* Crisp Gender Avatar Overlaid Cleanly */}
         <button
           type="button"
           onClick={onActivateXray}
-          aria-label={`Scan ${astronautName} X-Ray`}
-          className="relative flex-1 min-h-0 w-full flex flex-col items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-2xl"
+          aria-label={`Open body scan for ${astronautName}`}
+          className="relative z-10 flex-1 min-h-0 w-full flex flex-col items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-2xl group"
         >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute w-72 h-72 rounded-full blur-3xl opacity-55"
-            style={{
-              background:
-                'radial-gradient(circle, rgba(2, 71, 85, 0.85) 0%, rgba(2, 71, 85, 0.22) 52%, rgba(0, 0, 0, 0) 76%)',
-            }}
-          />
-
-          <div className="relative h-full max-h-[380px] aspect-square flex items-center justify-center">
+          <div className="relative h-full max-h-[385px] aspect-square flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02]">
             <img
               src={assets.standard}
               alt={`${astronautName} avatar`}
               decoding="async"
               fetchPriority="high"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain drop-shadow-[0_18px_32px_rgba(0,0,0,0.55)] select-none"
+              className="w-full h-full object-contain drop-shadow-[0_20px_36px_rgba(0,0,0,0.85)] select-none"
               style={{ imageRendering: 'pixelated' }}
             />
           </div>
         </button>
 
-        <div className="w-full shrink-0 flex items-center justify-center pt-2">
+        <div className="relative z-10 w-full shrink-0 flex items-center justify-center pt-2">
           <button
             type="button"
             onClick={onActivateXray}
             className="btn-mono-primary px-6 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
           >
             <ScanLine className="h-4 w-4" />
-            <span>Open X-Ray Scan</span>
+            <span>Open Body Scan</span>
           </button>
         </div>
       </div>
@@ -241,7 +286,7 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
   // =========================================================================
   return (
     <div className="glass-3d-recessed relative flex flex-1 min-h-0 flex-col w-full items-center justify-between overflow-hidden rounded-2xl p-3 sm:p-4">
-      {/* Fixed-height minimalist top bar (never changes height on hover) */}
+      {/* Fixed-height minimalist top bar */}
       <div className="w-full h-9 shrink-0 flex items-center justify-between gap-2 z-10">
         <button
           type="button"
@@ -265,19 +310,19 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
           <div className="flex items-center gap-3 text-xs font-semibold">
             <span className="text-emerald-400">● Normal</span>
             <span className="text-amber-400">▲ Watch</span>
-            <span className="text-rose-400">✖ Alert</span>
+            <span className="text-rose-400">✖ Not Normal</span>
           </div>
         )}
       </div>
 
-      {/* Unified Scalable SVG Stage: Full Head-to-Toe X-Ray + Callout Lines (Zero Cropping, Zero Vibration) */}
+      {/* Unified Scalable SVG Stage: Full Head-to-Toe X-Ray + Callout Lines */}
       <div className="relative flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
         <svg
           viewBox="0 0 600 440"
           preserveAspectRatio="xMidYMid meet"
           className="w-full h-full max-h-full select-none"
           role="img"
-          aria-label="X-Ray Anatomical Scan"
+          aria-label="Full Body Scan"
         >
           <defs>
             <radialGradient id="xrayStudioAura" cx="50%" cy="48%" r="48%">
@@ -294,10 +339,8 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               transition: 'transform 340ms cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            {/* Subtle #024755 backdrop aura */}
             <circle cx="300" cy="216" r="195" fill="url(#xrayStudioAura)" />
 
-            {/* Calibration pedestal below boots */}
             <ellipse
               cx="300"
               cy="402"
@@ -319,7 +362,6 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               strokeWidth="1"
             />
 
-            {/* SPE Active Shielding Ring */}
             {speActive && (
               <circle
                 cx="300"
@@ -332,7 +374,6 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               />
             )}
 
-            {/* Full Uncropped X-Ray Image Inside Unified SVG Coordinate Box */}
             <image
               href={assets.xray}
               x="125"
@@ -344,7 +385,6 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
               className="xray-reveal-wipe cursor-pointer"
             />
 
-            {/* Parameter Callout Lines & Organ Target Nodes */}
             {HOTSPOTS.map((spot, idx) => {
               const sev = systemSeverities[spot.id];
               const palette = SEVERITY_COLORS[sev];
@@ -430,14 +470,13 @@ export const AnatomicalHudSvg: React.FC<AnatomicalHudSvgProps> = ({
                     />
                   )}
 
-                  {/* Fixed invisible hit target (never shifts coordinates) */}
                   <circle cx={spot.cx} cy={spot.cy} r="20" fill="transparent" />
 
                   <circle
                     cx={spot.cx}
                     cy={spot.cy}
                     r={isSelected || isHovered ? 6.5 : 5}
-                    fill="#090B0F"
+                    fill="#000000"
                     stroke={palette.stroke}
                     strokeWidth={isUrgent ? '2.4' : '2'}
                   />

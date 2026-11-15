@@ -67,13 +67,13 @@ export const CardiacWaveformCard: React.FC<{
               {vo2Pct.toFixed(0)}
               <span className="ml-0.5 text-base font-medium text-zinc-400">%</span>
             </div>
-            <div className="text-sm text-zinc-400 mt-1">Fitness Score</div>
+            <div className="text-sm text-zinc-400 mt-1">Aerobic Fitness</div>
           </div>
         </div>
         <div className="text-right tabular-nums text-sm">
-          <div className="text-zinc-200 font-semibold">Rest {restingHr} bpm</div>
+          <div className="text-zinc-200 font-semibold">Resting {restingHr} bpm</div>
           <div className={delta >= 8 ? 'text-amber-400 font-semibold' : 'text-emerald-400 font-semibold'}>
-            Workout {delta >= 0 ? `+${delta}` : delta} bpm
+            Exercise {delta >= 0 ? `+${delta}` : delta} bpm
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@ export const CardiacWaveformCard: React.FC<{
       </svg>
 
       <div className="flex items-center justify-between border-t border-white/10 pt-2.5 text-sm text-zinc-300">
-        <span className="tabular-nums font-semibold text-white">BP: {bpText} mmHg</span>
+        <span className="tabular-nums font-semibold text-white">Blood Pressure: {bpText} mmHg</span>
         {onInspect ? (
           <button
             type="button"
@@ -148,14 +148,14 @@ export const BiomarkerHelixWave: React.FC<{
           Today: <strong className="text-white">{dailyDoseMsv.toFixed(2)} mSv</strong>
         </span>
         <span>
-          Career: <strong className="text-white">{cumulativeMsv.toFixed(1)}</strong> / {careerLimitMsv} mSv
+          Total: <strong className="text-white">{cumulativeMsv.toFixed(1)}</strong> / {careerLimitMsv} mSv
         </span>
       </div>
       <div className="text-sm font-semibold">
         {status === 'stale' ? (
-          <span className="text-amber-400">◌ Sensor Stale</span>
+          <span className="text-amber-400">◌ Update Needed</span>
         ) : (
-          <span className="text-emerald-400">● Live Sensor</span>
+          <span className="text-emerald-400">● Badge Synced</span>
         )}
       </div>
     </div>
@@ -342,7 +342,7 @@ export const LongitudinalAreaChart: React.FC<{
           cy={activePoint.y}
           r="4"
           fill={statusHex}
-          stroke="#090B0F"
+          stroke="#000000"
           strokeWidth="1.6"
         />
 
@@ -431,9 +431,9 @@ export const ComplianceMatrixGrid: React.FC<{ rows: MatrixRow[]; sols: number[] 
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between text-xs sm:text-sm tabular-nums text-zinc-400 font-medium">
-        <span>7-SOL LOG</span>
+        <span>7-Day Log</span>
         <span>
-          SOL {sols[0]}–{sols[sols.length - 1]}
+          Day {sols[0]}–{sols[sols.length - 1]}
         </span>
       </div>
       <div className="space-y-2">
@@ -444,7 +444,7 @@ export const ComplianceMatrixGrid: React.FC<{ rows: MatrixRow[]; sols: number[] 
               {row.cells.map((cell, idx) => (
                 <span
                   key={idx}
-                  title={`Sol ${sols[idx] ?? ''}: ${cell.toUpperCase()}`}
+                  title={`Day ${sols[idx] ?? ''}: ${cell === 'ok' ? 'Normal' : cell === 'warn' ? 'Watch' : 'Missed'}`}
                   className={`h-3.5 w-3.5 rounded-full ${
                     cell === 'ok'
                       ? 'bg-emerald-400'

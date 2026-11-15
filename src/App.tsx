@@ -113,6 +113,7 @@ export default function App() {
   useEffect(() => {
     offlineStore.loadMediaAssessments().then(setMediaItems);
     [
+      '/assets/aistudio/grey_spaceship_background_287c8ce6.jpg',
       '/assets/aistudio/Avatar_male_178eaa5e.png',
       '/assets/aistudio/avatar_female_27b5e242.png',
       '/assets/aistudio/X_Ray_male_4ea8b0b9.png',
@@ -238,7 +239,7 @@ export default function App() {
         completedPromptIds: promptId
           ? [...prev.completedPromptIds, promptId]
           : prev.completedPromptIds,
-        lastAwardLabel: `+${points} XP · ${label}`,
+        lastAwardLabel: `+${points} Points · ${label}`,
       };
       offlineStore.saveGamification(next);
       return next;
@@ -255,11 +256,11 @@ export default function App() {
       : [...history.slice(0, -1), entry];
     setHistory(nextHistory);
     offlineStore.saveTelemetryHistory(nextHistory);
-    awardXp(40, 'Health Check Logged');
+    awardXp(40, 'Daily Check Done');
 
     const pkt = offlineStore.createDeltaPacket(
       entry.sol,
-      'Physical Biometrics',
+      'Health Log',
       domainSummary,
       false
     );
@@ -272,12 +273,12 @@ export default function App() {
     const nextSessions = [...pvtSessions, session];
     setPvtSessions(nextSessions);
     offlineStore.savePvtSessions(nextSessions);
-    awardXp(50, 'PVT-B Focus Check');
+    awardXp(50, 'Reaction Check Done');
 
     const pkt = offlineStore.createDeltaPacket(
       session.sol,
-      'PVT-B Cognitive Delta',
-      `PVT-B ${session.mode}: Mean RT ${session.meanRtMs} ms, ${session.lapsesCount} lapses.`,
+      'Alertness Check',
+      `Reaction speed: ${(session.meanRtMs / 1000).toFixed(2)}s average, ${session.lapsesCount} slow responses.`,
       false
     );
     const nextQueue = [...syncQueue, pkt];
@@ -288,20 +289,20 @@ export default function App() {
   const handleSaveMediaItem = async (item: MediaAssessmentItem) => {
     await offlineStore.saveMediaAssessment(item);
     setMediaItems((prev) => [...prev, item]);
-    awardXp(30, 'Scan Logged');
+    awardXp(30, 'Image Saved');
   };
 
   const handleAddVaultEntry = (entry: BehavioralVaultEntry) => {
     const nextVault = [...vault, entry];
     setVault(nextVault);
     offlineStore.saveBehavioralVault(nextVault);
-    awardXp(35, 'Vault Check-In');
+    awardXp(35, 'Private Log Saved');
 
     if (entry.sharedWithFlightSurgeon) {
       const pkt = offlineStore.createDeltaPacket(
         entry.sol,
-        'Opt-In Behavioral Summary',
-        `Astronaut opted in to share Sol ${entry.sol} sleep (${entry.sleepHours}h) & check-in summary.`,
+        'Sleep & Well-Being',
+        `Shared Day ${entry.sol} sleep (${entry.sleepHours}h) and well-being summary.`,
         true
       );
       const nextQueue = [...syncQueue, pkt];
@@ -324,10 +325,10 @@ export default function App() {
     if (next.activeWarning) {
       const pkt = offlineStore.createDeltaPacket(
         envConfig.currentDay,
-        'SPE Protocol Log',
+        'Solar Storm Warning',
         next.shelterOccupied
-          ? `Confirmed shelter entry in ${next.assignedShelter} (${next.eventId}).`
-          : `Relayed official SPE warning ${next.eventId}.`,
+          ? `Sheltered inside ${next.assignedShelter}.`
+          : `Solar storm warning active.`,
         false
       );
       const nextQueue = [...syncQueue, pkt];
@@ -367,7 +368,7 @@ export default function App() {
     if (syncSummary) {
       const pkt = offlineStore.createDeltaPacket(
         updated.sol,
-        'Hazard Telemetry Delta',
+        'Health Update',
         syncSummary,
         false
       );
@@ -398,7 +399,7 @@ export default function App() {
     const nextHistory = [...history, appended];
     setHistory(nextHistory);
     offlineStore.saveTelemetryHistory(nextHistory);
-    awardXp(20, `Logged Sol ${nextSol}`);
+    awardXp(20, `Day ${nextSol} Saved`);
   };
 
   const handleTransmitQueued = () => {
@@ -490,8 +491,8 @@ export default function App() {
         const entry = latestUpdated as DailyTelemetryEntry;
         const pkt = offlineStore.createDeltaPacket(
           envConfig.currentDay,
-          `Wearable Sync (${reading.deviceName})`,
-          `Synced HR ${entry.restingHrBpm} bpm, SpO2 ${entry.spo2Pct ?? 98}%, Temp ${(entry.bodyTempC ?? 36.8).toFixed(1)}°C, Glucose ${entry.bloodGlucoseMgDl ?? 96} mg/dL.`,
+          `Wearable (${reading.deviceName})`,
+          `Synced HR ${entry.restingHrBpm} bpm, O2 ${entry.spo2Pct ?? 98}%, Temp ${(entry.bodyTempC ?? 36.8).toFixed(1)} °C, Glucose ${entry.bloodGlucoseMgDl ?? 96} mg/dL.`,
           false
         );
         setSyncQueue((prevQueue) => {
@@ -500,7 +501,7 @@ export default function App() {
           return nextQueue;
         });
         setWearableSyncNotice(
-          `Synced ${reading.deviceName} — baseline comparison updated on Body HUD.`
+          `${reading.deviceName} updated your health readings.`
         );
       }
     },
@@ -513,7 +514,7 @@ export default function App() {
 
   const handleApplyWearableReading = (reading: WearableReadingPayload) => {
     applyWearableReading(reading, false);
-    awardXp(35, 'Wearable Baseline Sync');
+    awardXp(35, 'Wearable Synced');
   };
 
   const handleToggleActionDone = (actionId: string) => {
@@ -524,7 +525,7 @@ export default function App() {
       return next;
     });
     if (isNowDone) {
-      awardXp(25, 'Countermeasure Completed');
+      awardXp(25, 'Checklist Item Completed');
     }
   };
 
@@ -537,14 +538,14 @@ export default function App() {
       });
     }
     if (prompt.id === 'routine-ared-bone') {
-      handlePatchLatestTelemetry({ aredCompleted: true }, 'Completed routine ARED bone loading');
+      handlePatchLatestTelemetry({ aredCompleted: true }, 'Completed daily resistance training');
     } else if (prompt.id === 'routine-hydration' && latestEntry) {
       handlePatchLatestTelemetry(
         {
           fluidIntakeMl: Math.max(baseline.fluidTargetMl, latestEntry.fluidIntakeMl + 500),
           urineDarkConcentrated: false,
         },
-        'Logged +500 mL routine hydration boost'
+        'Logged 500 ml extra water intake'
       );
     }
     awardXp(prompt.xpReward, prompt.title, prompt.id);
@@ -593,17 +594,17 @@ export default function App() {
   const alertSysCount = systemStatuses.filter((s) => s === 'urgent').length;
 
   const navItems: { id: NavTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'hud', label: 'Body HUD', icon: Scan },
-    { id: 'vitals', label: 'Vitals', icon: HeartPulse },
-    { id: 'environment', label: 'Environment', icon: Wind },
-    { id: 'research', label: '5 Hazards', icon: ClipboardList },
+    { id: 'hud', label: 'Body Scan', icon: Scan },
+    { id: 'vitals', label: 'Daily Health', icon: HeartPulse },
+    { id: 'environment', label: 'Cabin & Suits', icon: Wind },
+    { id: 'research', label: '5 Risks', icon: ClipboardList },
     { id: 'systems', label: 'Trends', icon: TrendingUp },
-    { id: 'assessments', label: 'Scans', icon: Crosshair },
-    { id: 'vault', label: 'Vault', icon: Lock },
-    { id: 'sync', label: queuedCount > 0 ? `Sync (${queuedCount})` : 'Sync', icon: RefreshCw },
+    { id: 'assessments', label: 'Checks', icon: Crosshair },
+    { id: 'vault', label: 'Private Log', icon: Lock },
+    { id: 'sync', label: queuedCount > 0 ? `Earth Sync (${queuedCount})` : 'Earth Sync', icon: RefreshCw },
   ];
 
-  const activeNavLabel = navItems.find((item) => item.id === activeTab)?.label ?? 'Body HUD';
+  const activeNavLabel = navItems.find((item) => item.id === activeTab)?.label ?? 'Body Scan';
 
   const renderNavIndicator = (tab: NavTab) => {
     const tone = severityToVisualTone(navSeverities[tab]);
@@ -614,7 +615,7 @@ export default function App() {
     return (
       <span
         className="relative inline-flex h-2 w-2 shrink-0 items-center justify-center"
-        aria-label={tone === 'red' ? 'Critical status alert' : 'Watch status alert'}
+        aria-label={tone === 'red' ? 'Not Normal alert' : 'Watch alert'}
       >
         {(tone === 'red' || isBouncing) && (
           <span
@@ -629,7 +630,7 @@ export default function App() {
 
   if (!profile) {
     return (
-      <div className="relative min-h-screen w-full bg-[#090B0F]">
+      <div className="relative min-h-screen w-full bg-black">
         <AstronautOnboarding onComplete={handleCompleteOnboarding} />
         <MouseGlowBackground />
       </div>
@@ -639,7 +640,7 @@ export default function App() {
   const isAvatarLanding = activeTab === 'hud' && !isXrayMode;
 
   return (
-    <div className="relative min-h-screen lg:h-screen lg:overflow-hidden bg-[#090B0F] text-white flex flex-col">
+    <div className="relative min-h-screen lg:h-screen lg:overflow-hidden bg-black text-white flex flex-col">
       {/* Global Smooth #024755 Cursor Glow */}
       <MouseGlowBackground />
 
@@ -672,7 +673,7 @@ export default function App() {
                   onClick={() => handleOpenCheckIn(selectedSystem)}
                   className="btn-mono-glass px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap"
                 >
-                  <Mic className="h-3.5 w-3.5" /> Log
+                  <Mic className="h-3.5 w-3.5" /> Check In
                 </button>
               )}
               <button
@@ -680,7 +681,7 @@ export default function App() {
                 onClick={() => setWearableOpen(true)}
                 className="btn-mono-primary px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap"
               >
-                Sync
+                Watch
               </button>
               <button
                 type="button"
@@ -736,7 +737,7 @@ export default function App() {
                 isOnline ? 'text-emerald-400' : 'text-amber-400'
               }`}
             >
-              {isOnline ? '● Edge Ready' : '▲ Offline'}
+              {isOnline ? '● Online' : '▲ Offline'}
             </span>
             {!isAvatarLanding && (
               <button
@@ -745,7 +746,7 @@ export default function App() {
                 className="btn-mono-glass inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold cursor-pointer whitespace-nowrap"
               >
                 <Mic className="h-3.5 w-3.5" />
-                Log
+                Check In
               </button>
             )}
             <button
@@ -754,7 +755,7 @@ export default function App() {
               className="btn-mono-primary px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <Watch className="h-3.5 w-3.5" />
-              Sync
+              Watch
             </button>
             <button
               type="button"
@@ -781,9 +782,9 @@ export default function App() {
               <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold tabular-nums">
                 <span className="text-emerald-400">● {normalSysCount} Normal</span>
                 <span className="text-amber-400">▲ {watchSysCount} Watch</span>
-                <span className="text-rose-400">✖ {alertSysCount} Alert</span>
+                <span className="text-rose-400">✖ {alertSysCount} Not Normal</span>
                 <span className="hidden md:inline text-zinc-300 border-l border-white/15 pl-3">
-                  Lv.{rank.level} · {rank.currentXp} XP
+                  Level {rank.level} · {rank.currentXp} pts
                 </span>
               </div>
             </div>
